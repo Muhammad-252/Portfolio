@@ -38,6 +38,12 @@ import {
   LogOut,
   Shield,
   FileText,
+  BookOpen,
+  HelpCircle,
+  Clock,
+  Calendar,
+  Tag,
+  MessageCircle,
 } from "lucide-react";
 import { auth, db, firebaseConfigured } from "@/lib/firebase";
 import type { Project } from "@/lib/types";
@@ -47,8 +53,12 @@ import {
 } from "@/lib/categories";
 import { useIndustries } from "@/lib/useIndustries";
 import { SAMPLE_PROJECTS } from "@/lib/usePortfolioProjects";
+import { useBlogPosts, DEFAULT_AUTHOR } from "@/lib/useBlogPosts";
+import { BLOG_CATEGORIES, type BlogPost } from "@/lib/blogTypes";
+import { useFaqs } from "@/lib/useFaqs";
+import { FAQ_CATEGORIES, type FAQItem } from "@/lib/faqTypes";
 
-const blank: Project = {
+const blankProject: Project = {
   title: "",
   slug: "",
   category: "UI/UX Design",
@@ -73,18 +83,46 @@ const blank: Project = {
   order: 0,
 };
 
+const blankBlogPost: Omit<BlogPost, "id"> = {
+  title: "",
+  slug: "",
+  excerpt: "",
+  content: "",
+  cover: "",
+  category: "UI/UX Strategy",
+  tags: ["UI/UX", "Product Design"],
+  author: DEFAULT_AUTHOR,
+  date: "May 2026",
+  readingTime: "5 min read",
+  featured: false,
+  published: true,
+  order: 0,
+};
+
+const blankFaq: Omit<FAQItem, "id"> = {
+  question: "",
+  answer: "",
+  category: "Process",
+  order: 0,
+  published: true,
+};
+
 export default function Admin() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [projects, setProjects] = useState<Project[]>(SAMPLE_PROJECTS);
-  const [form, setForm] = useState<Project>(blank);
+  const [form, setForm] = useState<Project>(blankProject);
   const [editing, setEditing] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
-  const [activeTab, setActiveTab] = useState<"projects" | "industries" | "editor">("projects");
 
-  // Dynamic Industries Management
+  // Navigation tab
+  const [activeTab, setActiveTab] = useState<
+    "projects" | "industries" | "editor" | "blog" | "blog-editor" | "faqs"
+  >("projects");
+
+  // Dynamic Industries
   const {
     industries,
     addIndustry,
@@ -97,6 +135,34 @@ export default function Admin() {
   const [editingIndustryOld, setEditingIndustryOld] = useState<string | null>(null);
   const [editingIndustryNew, setEditingIndustryNew] = useState("");
   const [adminSearch, setAdminSearch] = useState("");
+
+  // Blog Management
+  const {
+    posts,
+    addBlogPost,
+    updateBlogPost,
+    deleteBlogPost,
+    resetBlogPosts,
+  } = useBlogPosts();
+
+  const [blogForm, setBlogForm] = useState<Omit<BlogPost, "id">>(blankBlogPost);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [blogSearch, setBlogSearch] = useState("");
+
+  // FAQ Management
+  const {
+    faqs,
+    addFaq,
+    updateFaq,
+    deleteFaq,
+    resetFaqs,
+  } = useFaqs();
+
+  const [faqForm, setFaqForm] = useState<Omit<FAQItem, "id">>(blankFaq);
+  const [editingFaqId, setEditingFaqId] = useState<string | null>(null);
+  const [editingFaqQuestion, setEditingFaqQuestion] = useState("");
+  const [editingFaqAnswer, setEditingFaqAnswer] = useState("");
+  const [editingFaqCategory, setEditingFaqCategory] = useState("Process");
 
   useEffect(() => {
     if (!firebaseConfigured || !auth) {
@@ -151,11 +217,34 @@ export default function Admin() {
     setForm((prev) => ({
       ...prev,
       title: val,
-      slug: prev.slug === "" || prev.slug === prev.title.toLowerCase().replace(/\s+/g, "-") ? generatedSlug : prev.slug,
+      slug:
+        prev.slug === "" ||
+        prev.slug === prev.title.toLowerCase().replace(/\s+/g, "-")
+          ? generatedSlug
+          : prev.slug,
     }));
   }
 
-  async function save() {
+  function handleBlogTitleChange(val: string) {
+    const generatedSlug = val
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    setBlogForm((prev) => ({
+      ...prev,
+      title: val,
+      slug:
+        prev.slug === "" ||
+        prev.slug === prev.title.toLowerCase().replace(/\s+/g, "-")
+          ? generatedSlug
+          : prev.slug,
+    }));
+  }
+
+  async function saveProject() {
     try {
       setMsg("");
       if (!form.title.trim()) {
@@ -178,7 +267,6 @@ export default function Admin() {
           await addDoc(collection(db, "projects"), data);
         }
       } else {
-        // Local mode fallback
         if (editing) {
           setProjects((prev) =>
             prev.map((p) => (p.id === editing ? { ...data, id: editing } : p))
@@ -189,7 +277,7 @@ export default function Admin() {
         }
       }
 
-      setForm(blank);
+      setForm(blankProject);
       setEditing(null);
       setMsg("Project saved successfully.");
       setActiveTab("projects");
@@ -199,7 +287,7 @@ export default function Admin() {
     }
   }
 
-  async function remove(id: string) {
+  async function removeProject(id: string) {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
         if (firebaseConfigured && db && user) {
@@ -214,6 +302,57 @@ export default function Admin() {
     }
   }
 
+  // Blog save
+  async function handleSaveBlogPost() {
+    if (!blogForm.title.trim()) {
+      alert("Please provide an article title.");
+      return;
+    }
+
+    if (editingPostId) {
+      await updateBlogPost(editingPostId, blogForm);
+      setMsg(`Article "${blogForm.title}" updated successfully.`);
+    } else {
+      await addBlogPost(blogForm);
+      setMsg(`Article "${blogForm.title}" published.`);
+    }
+
+    setBlogForm(blankBlogPost);
+    setEditingPostId(null);
+    setActiveTab("blog");
+  }
+
+  async function handleDeleteBlogPost(id: string, title: string) {
+    if (confirm(`Delete article "${title}"?`)) {
+      await deleteBlogPost(id);
+      setMsg(`Deleted article "${title}".`);
+    }
+  }
+
+  // FAQ save
+  async function handleAddFaqSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!faqForm.question.trim() || !faqForm.answer.trim()) {
+      alert("Please fill in both Question and Answer.");
+      return;
+    }
+    await addFaq(faqForm);
+    setFaqForm(blankFaq);
+    setMsg("New FAQ created successfully.");
+  }
+
+  async function handleSaveEditFaq(id: string) {
+    if (!editingFaqQuestion.trim() || !editingFaqAnswer.trim()) return;
+    await updateFaq(id, {
+      question: editingFaqQuestion.trim(),
+      answer: editingFaqAnswer.trim(),
+      category: editingFaqCategory,
+    });
+    setEditingFaqId(null);
+    setMsg("FAQ item updated.");
+  }
+
+  // Dynamic Industry actions
   async function handleAddIndustry(e: React.FormEvent) {
     e.preventDefault();
     if (!newIndustryName.trim()) return;
@@ -268,6 +407,17 @@ export default function Admin() {
     );
   }, [projects, adminSearch]);
 
+  const filteredBlogPosts = useMemo(() => {
+    if (!blogSearch.trim()) return posts;
+    const q = blogSearch.toLowerCase();
+    return posts.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.excerpt.toLowerCase().includes(q)
+    );
+  }, [posts, blogSearch]);
+
   // Login View
   if (firebaseConfigured && auth && !user && authChecked) {
     return (
@@ -279,8 +429,8 @@ export default function Admin() {
             </div>
             <h1>Arslan Studio CMS</h1>
             <p>
-              Sign in with your administrator credentials to manage portfolio projects, case
-              studies, and taxonomies.
+              Sign in with your administrator credentials to manage portfolio projects,
+              blog articles, and client FAQs.
             </p>
             <div className="field">
               <label>Email Address</label>
@@ -320,7 +470,8 @@ export default function Admin() {
     );
   }
 
-  const set = (k: keyof Project, v: any) => setForm((prev) => ({ ...prev, [k]: v }));
+  const setProj = (k: keyof Project, v: any) => setForm((prev) => ({ ...prev, [k]: v }));
+  const setBlog = (k: keyof BlogPost, v: any) => setBlogForm((prev) => ({ ...prev, [k]: v }));
 
   return (
     <main className="admin-shell">
@@ -333,7 +484,7 @@ export default function Admin() {
           <span className="topbar-divider" />
           <div className="topbar-title-wrap">
             <span className="topbar-product-name">Portfolio Studio</span>
-            <span className="topbar-badge">Pro CMS v2.5</span>
+            <span className="topbar-badge">Pro CMS v2.6</span>
           </div>
         </div>
 
@@ -352,6 +503,16 @@ export default function Admin() {
             title="Open live gallery in new tab"
           >
             <span>Live Portfolio</span>
+            <ExternalLink size={13} />
+          </a>
+          <a
+            className="topbar-preview-btn"
+            href="/blog"
+            target="_blank"
+            rel="noreferrer"
+            title="Open live blog in new tab"
+          >
+            <span>Live Blog</span>
             <ExternalLink size={13} />
           </a>
           {user && (
@@ -383,9 +544,9 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Nav Section: Core Management */}
+          {/* Section 1: Portfolio & Projects */}
           <div className="sidebar-nav-group">
-            <span className="sidebar-group-title">Content &amp; Portfolio</span>
+            <span className="sidebar-group-title">Projects &amp; Case Studies</span>
             <button
               type="button"
               className={`sidebar-nav-btn ${activeTab === "projects" ? "active" : ""}`}
@@ -412,18 +573,62 @@ export default function Admin() {
               type="button"
               className={`sidebar-nav-btn ${activeTab === "editor" ? "active" : ""}`}
               onClick={() => {
-                if (!editing) setForm(blank);
+                if (!editing) setForm(blankProject);
                 setActiveTab("editor");
               }}
             >
               <span className="nav-btn-label">
-                <Plus size={16} /> {editing ? "Edit Active Entry" : "Create Project"}
+                <Plus size={16} /> {editing ? "Edit Active Project" : "Create Project"}
               </span>
               {editing && <span className="nav-btn-counter edit-active">Active</span>}
             </button>
           </div>
 
-          {/* Nav Section: Quick Links */}
+          {/* Section 2: Articles & Publications */}
+          <div className="sidebar-nav-group">
+            <span className="sidebar-group-title">Articles &amp; Blog</span>
+            <button
+              type="button"
+              className={`sidebar-nav-btn ${activeTab === "blog" ? "active" : ""}`}
+              onClick={() => setActiveTab("blog")}
+            >
+              <span className="nav-btn-label">
+                <BookOpen size={16} /> Blog Articles
+              </span>
+              <span className="nav-btn-counter">{posts.length}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`sidebar-nav-btn ${activeTab === "blog-editor" ? "active" : ""}`}
+              onClick={() => {
+                if (!editingPostId) setBlogForm(blankBlogPost);
+                setActiveTab("blog-editor");
+              }}
+            >
+              <span className="nav-btn-label">
+                <Plus size={16} /> {editingPostId ? "Edit Article" : "Write Article"}
+              </span>
+              {editingPostId && <span className="nav-btn-counter edit-active">Active</span>}
+            </button>
+          </div>
+
+          {/* Section 3: Inquiries & FAQ */}
+          <div className="sidebar-nav-group">
+            <span className="sidebar-group-title">Clarity &amp; Inquiries</span>
+            <button
+              type="button"
+              className={`sidebar-nav-btn ${activeTab === "faqs" ? "active" : ""}`}
+              onClick={() => setActiveTab("faqs")}
+            >
+              <span className="nav-btn-label">
+                <HelpCircle size={16} /> Manage FAQs
+              </span>
+              <span className="nav-btn-counter">{faqs.length}</span>
+            </button>
+          </div>
+
+          {/* Section 4: Public Views */}
           <div className="sidebar-nav-group">
             <span className="sidebar-group-title">Public Views</span>
             <a
@@ -433,7 +638,18 @@ export default function Admin() {
               className="sidebar-nav-link"
             >
               <span className="nav-btn-label">
-                <Globe size={15} /> All Work Page
+                <Globe size={15} /> All Work Gallery
+              </span>
+              <ExternalLink size={12} className="external-link-arrow" />
+            </a>
+            <a
+              href="/blog"
+              target="_blank"
+              rel="noreferrer"
+              className="sidebar-nav-link"
+            >
+              <span className="nav-btn-label">
+                <BookOpen size={15} /> Live Blog Page
               </span>
               <ExternalLink size={12} className="external-link-arrow" />
             </a>
@@ -454,14 +670,16 @@ export default function Admin() {
           <div className="sidebar-footer-card">
             <div className="db-status-header">
               <Database size={14} className="db-icon" />
-              <span>Database Engine</span>
+              <span>Database Sync</span>
             </div>
             <p className="db-status-detail">
               {firebaseConfigured
-                ? "Google Firestore cloud synchronized"
-                : "Local storage fallback operational"}
+                ? "Firestore cloud database connected"
+                : "Local storage persistence operational"}
             </p>
-            <span className="db-doc-count">{projects.length} Project Records</span>
+            <span className="db-doc-count">
+              {projects.length} Projects · {posts.length} Articles · {faqs.length} FAQs
+            </span>
           </div>
         </aside>
 
@@ -489,26 +707,24 @@ export default function Admin() {
           <div className="admin-stat-deck">
             <div className="admin-stat-tile">
               <div className="stat-tile-top">
-                <span className="stat-tile-label">Total Projects</span>
+                <span className="stat-tile-label">Case Studies</span>
                 <span className="stat-tile-icon-wrap">
                   <FolderGit2 size={16} />
                 </span>
               </div>
               <div className="stat-tile-number">{projects.length}</div>
-              <span className="stat-tile-sub">Client Case Studies</span>
+              <span className="stat-tile-sub">Portfolio Projects</span>
             </div>
 
             <div className="admin-stat-tile">
               <div className="stat-tile-top">
-                <span className="stat-tile-label">Spotlight Featured</span>
+                <span className="stat-tile-label">Blog Articles</span>
                 <span className="stat-tile-icon-wrap lime">
-                  <Sparkles size={16} />
+                  <BookOpen size={16} />
                 </span>
               </div>
-              <div className="stat-tile-number">
-                {projects.filter((p) => p.featured).length}
-              </div>
-              <span className="stat-tile-sub">Homepage Selected</span>
+              <div className="stat-tile-number">{posts.length}</div>
+              <span className="stat-tile-sub">Editorial Publications</span>
             </div>
 
             <div className="admin-stat-tile">
@@ -524,15 +740,13 @@ export default function Admin() {
 
             <div className="admin-stat-tile">
               <div className="stat-tile-top">
-                <span className="stat-tile-label">Live Published</span>
+                <span className="stat-tile-label">Client FAQs</span>
                 <span className="stat-tile-icon-wrap green">
-                  <CheckCircle2 size={16} />
+                  <HelpCircle size={16} />
                 </span>
               </div>
-              <div className="stat-tile-number">
-                {projects.filter((p) => p.published).length}
-              </div>
-              <span className="stat-tile-sub">Public Visibility</span>
+              <div className="stat-tile-number">{faqs.length}</div>
+              <span className="stat-tile-sub">Accordion Items</span>
             </div>
           </div>
 
@@ -571,7 +785,7 @@ export default function Admin() {
                     type="button"
                     className="pill primary"
                     onClick={() => {
-                      setForm(blank);
+                      setForm(blankProject);
                       setEditing(null);
                       setActiveTab("editor");
                     }}
@@ -643,7 +857,7 @@ export default function Admin() {
                               type="button"
                               className="action-btn edit"
                               onClick={() => {
-                                setForm({ ...blank, ...p, gallery: p.gallery || [] });
+                                setForm({ ...blankProject, ...p, gallery: p.gallery || [] });
                                 setEditing(p.id || null);
                                 setActiveTab("editor");
                               }}
@@ -655,7 +869,7 @@ export default function Admin() {
                             <button
                               type="button"
                               className="action-btn delete"
-                              onClick={() => remove(p.id!)}
+                              onClick={() => removeProject(p.id!)}
                               title="Delete project"
                             >
                               <Trash2 size={13} />
@@ -837,7 +1051,7 @@ export default function Admin() {
                     className="input"
                     placeholder="estateflow-luxury"
                     value={form.slug}
-                    onChange={(e) => set("slug", e.target.value)}
+                    onChange={(e) => setProj("slug", e.target.value)}
                   />
                   <small className="field-hint">Preview: /work/{form.slug || "slug"}</small>
                 </div>
@@ -848,7 +1062,7 @@ export default function Admin() {
                   <input
                     className="input"
                     value={form.year}
-                    onChange={(e) => set("year", e.target.value)}
+                    onChange={(e) => setProj("year", e.target.value)}
                   />
                 </div>
 
@@ -860,7 +1074,7 @@ export default function Admin() {
                   <select
                     className="input select-styled"
                     value={form.category}
-                    onChange={(e) => set("category", e.target.value)}
+                    onChange={(e) => setProj("category", e.target.value)}
                   >
                     {DEFAULT_MAIN_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -887,7 +1101,7 @@ export default function Admin() {
                   <select
                     className="input select-styled"
                     value={form.industry}
-                    onChange={(e) => set("industry", e.target.value)}
+                    onChange={(e) => setProj("industry", e.target.value)}
                   >
                     {industries.map((ind) => (
                       <option key={ind} value={ind}>
@@ -905,7 +1119,7 @@ export default function Admin() {
                   <select
                     className="input select-styled"
                     value={form.platform || "Web App"}
-                    onChange={(e) => set("platform", e.target.value)}
+                    onChange={(e) => setProj("platform", e.target.value)}
                   >
                     {PLATFORM_OPTIONS.map((plat) => (
                       <option key={plat} value={plat}>
@@ -922,7 +1136,7 @@ export default function Admin() {
                     className="input"
                     placeholder="e.g. EstateFlow Global"
                     value={form.client}
-                    onChange={(e) => set("client", e.target.value)}
+                    onChange={(e) => setProj("client", e.target.value)}
                   />
                 </div>
 
@@ -933,7 +1147,7 @@ export default function Admin() {
                     className="input"
                     placeholder="e.g. 8 Weeks"
                     value={form.duration}
-                    onChange={(e) => set("duration", e.target.value)}
+                    onChange={(e) => setProj("duration", e.target.value)}
                   />
                 </div>
 
@@ -944,7 +1158,7 @@ export default function Admin() {
                     className="input"
                     placeholder="e.g. Lead Product Designer"
                     value={form.role}
-                    onChange={(e) => set("role", e.target.value)}
+                    onChange={(e) => setProj("role", e.target.value)}
                   />
                 </div>
 
@@ -955,7 +1169,7 @@ export default function Admin() {
                     className="input"
                     placeholder="https://images.unsplash.com/... or /images/..."
                     value={form.cover}
-                    onChange={(e) => set("cover", e.target.value)}
+                    onChange={(e) => setProj("cover", e.target.value)}
                   />
                   {form.cover && (
                     <div className="editor-cover-preview">
@@ -977,7 +1191,7 @@ export default function Admin() {
                     placeholder="Figma, Webflow, Design System, React"
                     value={(form.tools || []).join(", ")}
                     onChange={(e) =>
-                      set(
+                      setProj(
                         "tools",
                         e.target.value.split(",").map((x) => x.trim())
                       )
@@ -993,11 +1207,11 @@ export default function Admin() {
                     rows={3}
                     placeholder="A brief executive summary of the project and impact..."
                     value={form.description}
-                    onChange={(e) => set("description", e.target.value)}
+                    onChange={(e) => setProj("description", e.target.value)}
                   />
                 </div>
 
-                {/* Case Study Details */}
+                {/* Case Study Narrative */}
                 <div className="field form-full">
                   <label>01. The Challenge</label>
                   <textarea
@@ -1005,7 +1219,7 @@ export default function Admin() {
                     rows={3}
                     placeholder="What problem did the client or users face?"
                     value={form.challenge}
-                    onChange={(e) => set("challenge", e.target.value)}
+                    onChange={(e) => setProj("challenge", e.target.value)}
                   />
                 </div>
 
@@ -1016,7 +1230,7 @@ export default function Admin() {
                     rows={3}
                     placeholder="How did you research, strategize, and architect the experience?"
                     value={form.process}
-                    onChange={(e) => set("process", e.target.value)}
+                    onChange={(e) => setProj("process", e.target.value)}
                   />
                 </div>
 
@@ -1027,7 +1241,7 @@ export default function Admin() {
                     rows={3}
                     placeholder="What was designed, built, and delivered?"
                     value={form.solution}
-                    onChange={(e) => set("solution", e.target.value)}
+                    onChange={(e) => setProj("solution", e.target.value)}
                   />
                 </div>
 
@@ -1038,7 +1252,7 @@ export default function Admin() {
                     rows={3}
                     placeholder="Metrics, user feedback, or business results achieved..."
                     value={form.outcome}
-                    onChange={(e) => set("outcome", e.target.value)}
+                    onChange={(e) => setProj("outcome", e.target.value)}
                   />
                 </div>
 
@@ -1049,7 +1263,7 @@ export default function Admin() {
                     className="input"
                     placeholder="https://figma.com/..."
                     value={form.figma}
-                    onChange={(e) => set("figma", e.target.value)}
+                    onChange={(e) => setProj("figma", e.target.value)}
                   />
                 </div>
 
@@ -1059,7 +1273,7 @@ export default function Admin() {
                     className="input"
                     placeholder="https://client-site.com"
                     value={form.live}
-                    onChange={(e) => set("live", e.target.value)}
+                    onChange={(e) => setProj("live", e.target.value)}
                   />
                 </div>
 
@@ -1072,7 +1286,7 @@ export default function Admin() {
                     placeholder="https://example.com/screen1.jpg&#10;https://example.com/screen2.jpg"
                     value={(form.gallery || []).join("\n")}
                     onChange={(e) =>
-                      set(
+                      setProj(
                         "gallery",
                         e.target.value.split("\n").map((url) => url.trim())
                       )
@@ -1087,7 +1301,7 @@ export default function Admin() {
                     className="input"
                     type="number"
                     value={form.order}
-                    onChange={(e) => set("order", Number(e.target.value))}
+                    onChange={(e) => setProj("order", Number(e.target.value))}
                   />
                 </div>
 
@@ -1098,7 +1312,7 @@ export default function Admin() {
                       <input
                         type="checkbox"
                         checked={form.featured}
-                        onChange={(e) => set("featured", e.target.checked)}
+                        onChange={(e) => setProj("featured", e.target.checked)}
                       />
                       <span>Featured on Homepage</span>
                     </label>
@@ -1106,7 +1320,7 @@ export default function Admin() {
                       <input
                         type="checkbox"
                         checked={form.published}
-                        onChange={(e) => set("published", e.target.checked)}
+                        onChange={(e) => setProj("published", e.target.checked)}
                       />
                       <span>Published Live</span>
                     </label>
@@ -1116,7 +1330,7 @@ export default function Admin() {
 
               {/* Form Action Controls */}
               <div className="editor-bottom-bar">
-                <button type="button" className="pill primary" onClick={save}>
+                <button type="button" className="pill primary" onClick={saveProject}>
                   <Sparkles size={15} />
                   {editing ? "Update Project" : "Publish Project"}
                 </button>
@@ -1124,13 +1338,548 @@ export default function Admin() {
                   type="button"
                   className="pill"
                   onClick={() => {
-                    setForm(blank);
+                    setForm(blankProject);
                     setEditing(null);
                     setActiveTab("projects");
                   }}
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: BLOG ARTICLES INVENTORY */}
+          {activeTab === "blog" && (
+            <div className="studio-card">
+              <div className="card-header-bar">
+                <div>
+                  <div className="card-kicker">Publications</div>
+                  <h2 className="card-title">Blog Articles</h2>
+                  <p className="card-subtitle">
+                    Publish and manage insights on UI/UX, design tokens, and product engineering.
+                  </p>
+                </div>
+                <div className="card-actions-cluster">
+                  <div className="table-search-wrap">
+                    <Search size={14} className="search-box-icon" />
+                    <input
+                      type="text"
+                      className="search-box-input"
+                      placeholder="Search articles..."
+                      value={blogSearch}
+                      onChange={(e) => setBlogSearch(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="pill primary"
+                    onClick={() => {
+                      setBlogForm(blankBlogPost);
+                      setEditingPostId(null);
+                      setActiveTab("blog-editor");
+                    }}
+                  >
+                    <Plus size={15} /> Write Article
+                  </button>
+                  <button
+                    type="button"
+                    className="pill"
+                    onClick={() => {
+                      if (confirm("Reset to 5 default sample articles?")) {
+                        resetBlogPosts();
+                        setMsg("Articles reset to presets.");
+                      }
+                    }}
+                    title="Reset sample articles"
+                  >
+                    <RotateCcw size={13} /> Reset
+                  </button>
+                </div>
+              </div>
+
+              <div className="studio-table-wrap">
+                <table className="studio-table">
+                  <thead>
+                    <tr>
+                      <th>Article</th>
+                      <th>Category</th>
+                      <th>Reading Time</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBlogPosts.map((p) => (
+                      <tr key={p.id || p.slug}>
+                        <td>
+                          <div className="table-project-cell">
+                            {p.cover ? (
+                              <img
+                                src={p.cover}
+                                alt=""
+                                className="table-project-thumb"
+                                onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                              />
+                            ) : (
+                              <div className="table-project-thumb-fallback">
+                                <BookOpen size={16} />
+                              </div>
+                            )}
+                            <div>
+                              <strong className="table-project-title">{p.title}</strong>
+                              <span className="table-project-slug">/blog/{p.slug}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="badge badge-category">{p.category}</span>
+                        </td>
+                        <td>
+                          <span className="table-year-cell">{p.readingTime}</span>
+                        </td>
+                        <td>
+                          <span className="table-year-cell">{p.date}</span>
+                        </td>
+                        <td>
+                          <span
+                            className={`table-status-pill ${p.published ? "published" : "draft"}`}
+                          >
+                            <span className="status-dot" />
+                            {p.published ? "Published" : "Draft"}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-row-actions">
+                            <button
+                              type="button"
+                              className="action-btn edit"
+                              onClick={() => {
+                                setBlogForm({ ...p });
+                                setEditingPostId(p.id || null);
+                                setActiveTab("blog-editor");
+                              }}
+                              title="Edit article"
+                            >
+                              <Edit2 size={13} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="action-btn delete"
+                              onClick={() => handleDeleteBlogPost(p.id!, p.title)}
+                              title="Delete article"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: BLOG ARTICLE EDITOR */}
+          {activeTab === "blog-editor" && (
+            <div className="studio-card">
+              <div className="card-header-bar">
+                <div>
+                  <div className="card-kicker">
+                    {editingPostId ? "Edit Article" : "New Publication"}
+                  </div>
+                  <h2 className="card-title">
+                    {editingPostId ? `Editing: ${blogForm.title}` : "Write Blog Article"}
+                  </h2>
+                  <p className="card-subtitle">
+                    Compose articles with markdown-style headings (###), blockquotes (&gt;), and bullet points.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="pill"
+                  onClick={() => setActiveTab("blog")}
+                >
+                  ← Back to Articles
+                </button>
+              </div>
+
+              <div className="editor-form-grid">
+                {/* Title */}
+                <div className="field form-full">
+                  <label>Article Title *</label>
+                  <input
+                    className="input"
+                    placeholder="e.g. The 2026 Guide to Scalable Design Tokens"
+                    value={blogForm.title}
+                    onChange={(e) => handleBlogTitleChange(e.target.value)}
+                  />
+                </div>
+
+                {/* Slug */}
+                <div className="field">
+                  <label>URL Slug</label>
+                  <input
+                    className="input"
+                    placeholder="scalable-design-tokens"
+                    value={blogForm.slug}
+                    onChange={(e) => setBlog("slug", e.target.value)}
+                  />
+                  <small className="field-hint">Preview: /blog/{blogForm.slug || "slug"}</small>
+                </div>
+
+                {/* Category */}
+                <div className="field">
+                  <label>Category *</label>
+                  <select
+                    className="input select-styled"
+                    value={blogForm.category}
+                    onChange={(e) => setBlog("category", e.target.value)}
+                  >
+                    {BLOG_CATEGORIES.filter((c) => c !== "All").map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reading Time */}
+                <div className="field">
+                  <label>Reading Time</label>
+                  <input
+                    className="input"
+                    placeholder="e.g. 5 min read"
+                    value={blogForm.readingTime}
+                    onChange={(e) => setBlog("readingTime", e.target.value)}
+                  />
+                </div>
+
+                {/* Date */}
+                <div className="field">
+                  <label>Publication Date</label>
+                  <input
+                    className="input"
+                    placeholder="e.g. May 15, 2026"
+                    value={blogForm.date}
+                    onChange={(e) => setBlog("date", e.target.value)}
+                  />
+                </div>
+
+                {/* Cover Image */}
+                <div className="field form-full">
+                  <label>Featured Cover Image URL</label>
+                  <input
+                    className="input"
+                    placeholder="https://images.unsplash.com/..."
+                    value={blogForm.cover}
+                    onChange={(e) => setBlog("cover", e.target.value)}
+                  />
+                  {blogForm.cover && (
+                    <div className="editor-cover-preview">
+                      <img
+                        src={blogForm.cover}
+                        alt="Cover preview"
+                        onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                      />
+                      <span>Article Cover Preview</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Excerpt */}
+                <div className="field form-full">
+                  <label>Short Excerpt (Displayed on Cards &amp; SEO)</label>
+                  <textarea
+                    className="textarea"
+                    rows={2}
+                    placeholder="A compelling 1-2 sentence hook summarizing the article..."
+                    value={blogForm.excerpt}
+                    onChange={(e) => setBlog("excerpt", e.target.value)}
+                  />
+                </div>
+
+                {/* Tags */}
+                <div className="field form-full">
+                  <label>Tags (Comma-separated)</label>
+                  <input
+                    className="input"
+                    placeholder="Figma, Design Tokens, UX Research"
+                    value={(blogForm.tags || []).join(", ")}
+                    onChange={(e) =>
+                      setBlog(
+                        "tags",
+                        e.target.value.split(",").map((t) => t.trim())
+                      )
+                    }
+                  />
+                </div>
+
+                {/* Full Article Content */}
+                <div className="field form-full">
+                  <label>Article Body Content (Markdown supported)</label>
+                  <textarea
+                    className="textarea"
+                    rows={12}
+                    placeholder="Write article content here. Use ### for subheadings, > for quotes, and - for bullet lists..."
+                    value={blogForm.content}
+                    onChange={(e) => setBlog("content", e.target.value)}
+                  />
+                </div>
+
+                {/* Visibility */}
+                <div className="field form-full">
+                  <label>Visibility &amp; Spotlight</label>
+                  <div className="editor-checkbox-row">
+                    <label className="checkbox-pill-label">
+                      <input
+                        type="checkbox"
+                        checked={blogForm.featured}
+                        onChange={(e) => setBlog("featured", e.target.checked)}
+                      />
+                      <span>Featured Editorial (Hero Spot)</span>
+                    </label>
+                    <label className="checkbox-pill-label">
+                      <input
+                        type="checkbox"
+                        checked={blogForm.published}
+                        onChange={(e) => setBlog("published", e.target.checked)}
+                      />
+                      <span>Published Live</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="editor-bottom-bar">
+                <button type="button" className="pill primary" onClick={handleSaveBlogPost}>
+                  <Sparkles size={15} />
+                  {editingPostId ? "Update Article" : "Publish Article"}
+                </button>
+                <button
+                  type="button"
+                  className="pill"
+                  onClick={() => {
+                    setBlogForm(blankBlogPost);
+                    setEditingPostId(null);
+                    setActiveTab("blog");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: FAQ ACCORDION MANAGER */}
+          {activeTab === "faqs" && (
+            <div className="studio-card">
+              <div className="card-header-bar">
+                <div>
+                  <div className="card-kicker">Client Clarity</div>
+                  <h2 className="card-title">Frequently Asked Questions</h2>
+                  <p className="card-subtitle">
+                    Manage the accordion items displayed on the homepage. Changes immediately reflect on the live site.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="pill"
+                  onClick={() => {
+                    if (confirm("Reset to 6 standard client FAQs?")) {
+                      resetFaqs();
+                      setMsg("FAQs reset to defaults.");
+                    }
+                  }}
+                  title="Reset to 6 standard FAQs"
+                >
+                  <RotateCcw size={13} /> Reset Defaults
+                </button>
+              </div>
+
+              {/* Add New FAQ Form */}
+              <form onSubmit={handleAddFaqSubmit} className="faq-admin-creator">
+                <h4 style={{ margin: "0 0 14px", fontSize: 14, color: "#eee" }}>
+                  + Add New FAQ Item
+                </h4>
+                <div className="editor-form-grid">
+                  <div className="field form-full">
+                    <label>Question *</label>
+                    <input
+                      className="input"
+                      placeholder="e.g. What assets and Figma files do I receive?"
+                      value={faqForm.question}
+                      onChange={(e) =>
+                        setFaqForm((prev) => ({ ...prev, question: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="field form-full">
+                    <label>Answer *</label>
+                    <textarea
+                      className="textarea"
+                      rows={3}
+                      placeholder="Clear, professional explanation..."
+                      value={faqForm.answer}
+                      onChange={(e) =>
+                        setFaqForm((prev) => ({ ...prev, answer: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Category</label>
+                    <select
+                      className="input select-styled"
+                      value={faqForm.category}
+                      onChange={(e) =>
+                        setFaqForm((prev) => ({ ...prev, category: e.target.value }))
+                      }
+                    >
+                      {FAQ_CATEGORIES.filter((c) => c !== "All").map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Order (0 = First)</label>
+                    <input
+                      className="input"
+                      type="number"
+                      value={faqForm.order}
+                      onChange={(e) =>
+                        setFaqForm((prev) => ({
+                          ...prev,
+                          order: Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="pill primary"
+                  style={{ marginTop: 16 }}
+                >
+                  <Plus size={14} /> Add FAQ Item
+                </button>
+              </form>
+
+              {/* FAQ Items List */}
+              <div className="faq-admin-list" style={{ marginTop: 32 }}>
+                <h4 style={{ margin: "0 0 16px", fontSize: 13, color: "#888", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Active FAQs ({faqs.length})
+                </h4>
+
+                <div className="faq-admin-deck">
+                  {faqs.map((faq, index) => {
+                    const isEditing = editingFaqId === faq.id;
+
+                    return (
+                      <div key={faq.id} className="faq-admin-card">
+                        {isEditing ? (
+                          <div className="faq-inline-edit-wrap">
+                            <div className="field" style={{ marginBottom: 12 }}>
+                              <label>Question</label>
+                              <input
+                                className="input"
+                                value={editingFaqQuestion}
+                                onChange={(e) => setEditingFaqQuestion(e.target.value)}
+                              />
+                            </div>
+                            <div className="field" style={{ marginBottom: 12 }}>
+                              <label>Answer</label>
+                              <textarea
+                                className="textarea"
+                                rows={3}
+                                value={editingFaqAnswer}
+                                onChange={(e) => setEditingFaqAnswer(e.target.value)}
+                              />
+                            </div>
+                            <div className="field" style={{ marginBottom: 16 }}>
+                              <label>Category</label>
+                              <select
+                                className="input select-styled"
+                                value={editingFaqCategory}
+                                onChange={(e) => setEditingFaqCategory(e.target.value)}
+                              >
+                                {FAQ_CATEGORIES.filter((c) => c !== "All").map((c) => (
+                                  <option key={c} value={c}>
+                                    {c}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button
+                                type="button"
+                                className="pill primary"
+                                onClick={() => handleSaveEditFaq(faq.id)}
+                              >
+                                <Check size={14} /> Save FAQ
+                              </button>
+                              <button
+                                type="button"
+                                className="pill"
+                                onClick={() => setEditingFaqId(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="faq-admin-view">
+                            <div className="faq-admin-content">
+                              <div className="faq-admin-meta">
+                                <span className="faq-admin-num">
+                                  #{String(index + 1).padStart(2, "0")}
+                                </span>
+                                <span className="badge badge-category">
+                                  {faq.category}
+                                </span>
+                              </div>
+                              <h3 className="faq-admin-q">{faq.question}</h3>
+                              <p className="faq-admin-a">{faq.answer}</p>
+                            </div>
+                            <div className="faq-admin-actions">
+                              <button
+                                type="button"
+                                className="action-btn edit"
+                                onClick={() => {
+                                  setEditingFaqId(faq.id);
+                                  setEditingFaqQuestion(faq.question);
+                                  setEditingFaqAnswer(faq.answer);
+                                  setEditingFaqCategory(faq.category);
+                                }}
+                                title="Edit FAQ"
+                              >
+                                <Edit2 size={13} /> Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="action-btn delete"
+                                onClick={async () => {
+                                  if (confirm("Delete this FAQ item?")) {
+                                    await deleteFaq(faq.id);
+                                    setMsg("FAQ item deleted.");
+                                  }
+                                }}
+                                title="Delete FAQ"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

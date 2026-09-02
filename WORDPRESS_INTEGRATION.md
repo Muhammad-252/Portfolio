@@ -190,3 +190,69 @@ Response items include:
 - `project_platform` (term IDs/names)
 - `_embedded['wp:featuredmedia'][0].source_url` (Project Image)
 - `content.rendered` (Case study content)
+
+---
+
+## 4. Blog Posts Management (WordPress Standard REST API)
+
+WordPress already includes a first-class blog system via standard `post` types:
+
+1. In **WP Admin > Posts**:
+   - **Add New Post**: Write article content, set title, excerpt, featured image, categories, and tags.
+   - **Categories**: Create categories such as `UI/UX Strategy`, `Design Systems`, `Prototyping`, `Case Analysis`, `Career & Process`.
+2. REST API endpoint used by the Next.js frontend:
+   ```http
+   GET https://your-wordpress-domain.com/wp-json/wp/v2/posts?_embed
+   ```
+3. To enable custom reading time in the REST API, add this helper to `functions.php`:
+   ```php
+   register_rest_field('post', 'reading_time', array(
+       'get_callback' => function($post) {
+           $word_count = str_word_count(strip_tags($post['content']['rendered']));
+           $minutes = ceil($word_count / 200);
+           return $minutes . ' min read';
+       }
+   ));
+   ```
+
+---
+
+## 5. Frequently Asked Questions (FAQ) Custom Post Type
+
+Add this code to `functions.php` to register `portfolio_faq` with categories and ordering:
+
+```php
+function arslan_register_faq_cpt() {
+    register_post_type('portfolio_faq', array(
+        'labels' => array(
+            'name'          => 'FAQs',
+            'singular_name' => 'FAQ',
+            'menu_name'     => 'Client FAQs',
+            'add_new_item'  => 'Add New FAQ',
+            'edit_item'     => 'Edit FAQ',
+            'all_items'     => 'All FAQs',
+        ),
+        'public'       => true,
+        'show_in_rest' => true,
+        'rest_base'    => 'faqs',
+        'menu_icon'    => 'dashicons-editor-help',
+        'supports'     => array('title', 'editor', 'page-attributes', 'custom-fields'),
+    ));
+
+    register_taxonomy('faq_category', 'portfolio_faq', array(
+        'labels' => array(
+            'name'          => 'FAQ Categories',
+            'singular_name' => 'FAQ Category',
+        ),
+        'hierarchical' => true,
+        'show_in_rest' => true,
+    ));
+}
+add_action('init', 'arslan_register_faq_cpt');
+```
+
+REST API Endpoint:
+```http
+GET https://your-wordpress-domain.com/wp-json/wp/v2/faqs
+```
+

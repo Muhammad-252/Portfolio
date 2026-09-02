@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { usePortfolioProjects } from "@/lib/usePortfolioProjects";
 import ProjectGallery from "@/components/ProjectGallery";
+import CaseStudyFloatingCTA from "@/components/CaseStudyFloatingCTA";
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
@@ -111,6 +112,7 @@ export default function CaseStudyPage() {
         </section>
         <ProjectGallery images={project.gallery} />
       </main>
+      <CaseStudyFloatingCTA projectTitle={project.title} />
     </>
   );
 }

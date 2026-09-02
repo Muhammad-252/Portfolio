@@ -9,6 +9,7 @@ export default function Nav() {
         <Link href="/work">Work</Link>
         <a href="/#about">About</a>
         <a href="/#services">Services</a>
+        <Link href="/blog">Blog</Link>
         <Link href="/contact">Contact</Link>
       </nav>
       <Link className="pill primary" href="/contact">
