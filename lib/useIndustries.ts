@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db, firebaseConfigured } from "@/lib/firebase";
+import { db, auth, firebaseConfigured } from "@/lib/firebase";
 import { DEFAULT_INDUSTRIES } from "@/lib/categories";
 
 const LOCAL_STORAGE_KEY = "portfolio_dynamic_industries";
@@ -38,12 +38,14 @@ export function useIndustries() {
       }
     }
 
-    if (firebaseConfigured && db) {
+    if (firebaseConfigured && db && auth?.currentUser) {
       try {
         const docRef = doc(db, "settings", "taxonomies");
         await setDoc(docRef, { industries: updatedList }, { merge: true });
       } catch (error) {
-        console.error("Error saving industries to Firestore:", error);
+        if ((error as any)?.code !== "permission-denied") {
+          console.error("Error saving industries to Firestore:", error);
+        }
       }
     }
   }, []);
@@ -71,16 +73,18 @@ export function useIndustries() {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.industries));
               }
             }
-          } else {
-            // First time initialization in Firestore
+          } else if (auth?.currentUser) {
+            // Only authenticated admin initializes
             await setDoc(docRef, { industries: Array.from(DEFAULT_INDUSTRIES) }, { merge: true });
           }
-        } else {
-          // Document doesn't exist yet, initialize with default industries
+        } else if (auth?.currentUser) {
+          // Document doesn't exist yet - only admin initializes
           await setDoc(docRef, { industries: Array.from(DEFAULT_INDUSTRIES) }, { merge: true });
         }
       } catch (err) {
-        console.error("Error loading industries from Firestore, using fallback", err);
+        if ((err as any)?.code !== "permission-denied") {
+          console.warn("Notice loading industries from Firestore, using default:", err);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }

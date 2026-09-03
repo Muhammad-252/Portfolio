@@ -112,7 +112,9 @@ export function useFaqs() {
           setLoading(false);
         },
         (err) => {
-          console.warn("Firestore faqs listener error, using local data", err);
+          if ((err as any)?.code !== "permission-denied") {
+            console.warn("Firestore faqs listener error, using local data", err);
+          }
           setLoading(false);
         }
       );

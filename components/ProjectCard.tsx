@@ -17,7 +17,21 @@ function getPlatformIcon(platform?: string) {
   }
 }
 
+function normalizeImageUrl(url?: string): string {
+  if (!url || typeof url !== "string" || !url.trim()) {
+    return "/images/hero-portrait-v3.png";
+  }
+  const clean = url.trim();
+  if (clean.startsWith("//")) {
+    return `https:${clean}`;
+  }
+  return clean;
+}
+
 export default function ProjectCard({ p }: { p: Project }) {
+  const altText = `${p.title} — ${p.category} ${p.platform} intuitive UI/UX design and scalable web application`;
+  const coverSrc = normalizeImageUrl(p.cover);
+
   return (
     <motion.div
       layout
@@ -29,7 +43,16 @@ export default function ProjectCard({ p }: { p: Project }) {
     >
       <Link href={"/work/" + p.slug} className="project">
         <div className="project-image">
-          <img src={p.cover} alt={p.title} loading="lazy" />
+          <img
+            src={coverSrc}
+            alt={altText}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src =
+                "/images/hero-portrait-v3.png";
+            }}
+          />
           <div className="project-image-shade" />
           <div className="project-open">
             <span>View case study</span>
@@ -45,7 +68,9 @@ export default function ProjectCard({ p }: { p: Project }) {
           <div className="project-meta">
             <div className="project-tags">
               <span className="badge badge-category">{p.category}</span>
-              {p.industry && <span className="badge badge-industry">{p.industry}</span>}
+              {p.industry && (
+                <span className="badge badge-industry">{p.industry}</span>
+              )}
               {p.platform && (
                 <span className="badge badge-platform">
                   {getPlatformIcon(p.platform)} {p.platform}

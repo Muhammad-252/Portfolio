@@ -19,6 +19,9 @@ export default function CaseStudyPage() {
     );
   const hasFigma = project.figma && project.figma !== "#";
   const hasLiveSite = project.live && project.live !== "#";
+  const coverUrl = project.cover?.startsWith("//")
+    ? "https:" + project.cover
+    : project.cover || "/images/hero-portrait-v3.png";
 
   return (
     <>
@@ -39,7 +42,14 @@ export default function CaseStudyPage() {
             <div className="case-year">{project.year}</div>
           </div>
           <div className="case-cover">
-            <img src={project.cover} alt={project.title} />
+            <img
+              src={coverUrl}
+              alt={project.title}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src =
+                  "/images/hero-portrait-v3.png";
+              }}
+            />
             <div className="case-cover-label">
               Selected work
               <br />

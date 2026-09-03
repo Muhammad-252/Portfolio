@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, ReactNode } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -14,6 +14,54 @@ import {
 import Nav from "@/components/Nav";
 import SocialLinks from "@/components/SocialLinks";
 import { useBlogPosts } from "@/lib/useBlogPosts";
+
+function renderInline(text: string): ReactNode {
+  const parts: (string | ReactNode)[] = [];
+  const regex = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|`([^`]+)`|\*([^*]+)\*/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    if (match[1] && match[2]) {
+      const isInternal = match[2].startsWith("/");
+      parts.push(
+        isInternal ? (
+          <Link key={match.index} href={match[2]} className="prose-link">
+            {match[1]}
+          </Link>
+        ) : (
+          <a
+            key={match.index}
+            href={match[2]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="prose-link"
+          >
+            {match[1]}
+          </a>
+        )
+      );
+    } else if (match[3]) {
+      parts.push(<strong key={match.index}>{match[3]}</strong>);
+    } else if (match[4]) {
+      parts.push(
+        <code key={match.index} className="prose-code">
+          {match[4]}
+        </code>
+      );
+    } else if (match[5]) {
+      parts.push(<em key={match.index}>{match[5]}</em>);
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+  return parts.length > 0 ? parts : text;
+}
 
 export default function BlogDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -29,6 +77,12 @@ export default function BlogDetailPage() {
       .filter((p) => p.slug !== post.slug && p.published)
       .slice(0, 2);
   }, [posts, post]);
+
+  useEffect(() => {
+    if (post) {
+      document.title = `${post.title} | Muhammad Arslan`;
+    }
+  }, [post]);
 
   if (!post) {
     return (
@@ -50,9 +104,41 @@ export default function BlogDetailPage() {
     );
   }
 
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.cover,
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+      jobTitle: post.author.role,
+      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Muhammad Arslan",
+      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+    },
+    datePublished: "2026-03-03T00:00:00+05:00",
+    dateModified: "2026-03-03T00:00:00+05:00",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app/blog/${post.slug}`,
+    },
+    keywords: post.tags?.join(", "),
+  };
+
   return (
     <>
       <Nav />
+
+      {/* Technical SEO: Schema.org BlogPosting Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
 
       <main className="blog-detail-root">
         <div className="container blog-detail-container">
@@ -108,6 +194,20 @@ export default function BlogDetailPage() {
               {post.content.split("\n\n").map((paragraph, idx) => {
                 const trimmed = paragraph.trim();
 
+                // Horizontal Rule
+                if (trimmed === "---") {
+                  return <hr key={idx} className="prose-hr" />;
+                }
+
+                // Heading 2
+                if (trimmed.startsWith("## ")) {
+                  return (
+                    <h2 key={idx} className="prose-h2">
+                      {trimmed.replace("## ", "")}
+                    </h2>
+                  );
+                }
+
                 // Heading 3
                 if (trimmed.startsWith("### ")) {
                   return (
@@ -117,11 +217,66 @@ export default function BlogDetailPage() {
                   );
                 }
 
+                // Markdown Table
+                if (trimmed.startsWith("|")) {
+                  const lines = trimmed.split("\n").filter((l) => l.trim().startsWith("|"));
+                  if (lines.length >= 2) {
+                    const headerCells = lines[0]
+                      .split("|")
+                      .map((c) => c.trim())
+                      .filter(Boolean);
+                    const dataLines = lines.slice(1).filter((l) => !l.includes("---"));
+
+                    return (
+                      <div key={idx} className="prose-table-wrap">
+                        <table className="prose-table">
+                          <thead>
+                            <tr>
+                              {headerCells.map((h, hIdx) => (
+                                <th key={hIdx}>{renderInline(h)}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dataLines.map((row, rIdx) => {
+                              const cells = row
+                                .split("|")
+                                .map((c) => c.trim())
+                                .filter(Boolean);
+                              return (
+                                <tr key={rIdx}>
+                                  {cells.map((cell, cIdx) => (
+                                    <td key={cIdx}>{renderInline(cell)}</td>
+                                  ))}
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  }
+                }
+
+                // Code block
+                if (trimmed.startsWith("```")) {
+                  const code = trimmed.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "");
+                  return (
+                    <pre key={idx} className="prose-pre">
+                      <code>{code}</code>
+                    </pre>
+                  );
+                }
+
                 // Blockquote
                 if (trimmed.startsWith("> ")) {
+                  const quoteText = trimmed
+                    .replace(/^> \*/, "")
+                    .replace(/\*$/, "")
+                    .replace(/^> /, "");
                   return (
                     <blockquote key={idx} className="prose-blockquote">
-                      <p>{trimmed.replace(/^> \*/, "").replace(/\*$/, "").replace(/^> /, "")}</p>
+                      <p>{renderInline(quoteText)}</p>
                     </blockquote>
                   );
                 }
@@ -132,7 +287,7 @@ export default function BlogDetailPage() {
                   return (
                     <ul key={idx} className="prose-list">
                       {items.map((item, itemIdx) => (
-                        <li key={itemIdx}>{item}</li>
+                        <li key={itemIdx}>{renderInline(item)}</li>
                       ))}
                     </ul>
                   );
@@ -141,7 +296,7 @@ export default function BlogDetailPage() {
                 // Regular paragraph
                 return (
                   <p key={idx} className="prose-paragraph">
-                    {trimmed}
+                    {renderInline(trimmed)}
                   </p>
                 );
               })}
