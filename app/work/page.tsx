@@ -14,16 +14,22 @@ import {
   Filter,
 } from "lucide-react";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import ProjectCard from "@/components/ProjectCard";
 import CustomFilterDropdown, { DropdownOption } from "@/components/CustomFilterDropdown";
 import { usePortfolioProjects } from "@/lib/usePortfolioProjects";
 import { useIndustries } from "@/lib/useIndustries";
 import { DEFAULT_MAIN_CATEGORIES, PLATFORM_OPTIONS } from "@/lib/categories";
+import { useEffect } from "react";
 
 export default function WorkPage() {
   const [category, setCategory] = useState<string>("All");
   const [industry, setIndustry] = useState<string>("All");
   const [platform, setPlatform] = useState<string>("All");
+
+  useEffect(() => {
+    document.title = "Selected Work & Case Studies | Muhammad Arslan — UI/UX Designer";
+  }, []);
 
   const projects = usePortfolioProjects();
   const { industries: managedIndustries } = useIndustries();
@@ -344,6 +350,7 @@ export default function WorkPage() {
           </motion.div>
         )}
       </main>
+      <Footer />
     </>
   );
 }

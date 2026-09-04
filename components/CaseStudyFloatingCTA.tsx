@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Sparkles, X, MessageSquare } from "lucide-react";
+import { ArrowUpRight, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CaseStudyFloatingCTAProps {
@@ -31,76 +31,67 @@ export default function CaseStudyFloatingCTA({ projectTitle }: CaseStudyFloating
   return (
     <AnimatePresence>
       {visible && (
-        <motion.div
+        <motion.aside
           className="case-floating-cta-root"
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          initial={{ opacity: 0, y: 35, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 30, scale: 0.95 }}
+          exit={{ opacity: 0, y: 25, scale: 0.96 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          aria-label="Project collaboration quick inquiry"
         >
           {minimized ? (
-            /* Minimized Pill Trigger */
+            /* Minimized Trigger */
             <button
               type="button"
               className="case-floating-cta-minimized"
               onClick={() => setMinimized(false)}
               aria-label="Expand project inquiry card"
-              title="Expand project inquiry"
             >
               <span className="minimized-pulse-dot" />
               <Sparkles size={14} className="minimized-sparkle-icon" />
-              <span className="minimized-text">Start a Project</span>
+              <span className="minimized-text">Let&apos;s Work Together</span>
               <ArrowUpRight size={14} />
             </button>
           ) : (
-            /* Full Floating Glassmorphism Card */
+            /* Full Floating Glassmorphic Card */
             <div className="case-floating-cta-card">
-              {/* Subtle ambient rotating glow element */}
               <div className="card-ambient-orbit" aria-hidden="true" />
 
-              {/* Card Header Bar */}
               <div className="card-header-row">
                 <div className="availability-pill">
                   <span className="availability-pulse-dot" />
-                  <span>Open for Projects</span>
+                  <span>Available for Projects</span>
                 </div>
                 <button
                   type="button"
                   className="card-minimize-btn"
                   onClick={() => setMinimized(true)}
-                  aria-label="Minimize floating card"
+                  aria-label="Dismiss floating prompt"
                   title="Minimize"
                 >
                   <X size={14} />
                 </button>
               </div>
 
-              {/* Card Body */}
               <div className="card-content-body">
-                <h4 className="card-inquiry-title">Have a similar project in mind?</h4>
+                <h4 className="card-inquiry-title">Need a similar solution?</h4>
                 <p className="card-inquiry-desc">
-                  {projectTitle ? (
-                    <>Let&apos;s talk about building a tailored experience like <em>{projectTitle}</em> for your business.</>
-                  ) : (
-                    <>Let&apos;s talk about how I can help bring your digital product to life.</>
-                  )}
+                  Let’s create something that works for your business.
                 </p>
               </div>
 
-              {/* Action Buttons */}
               <div className="card-actions-row">
-                <Link href="/contact" className="pill primary card-cta-btn">
-                  <span>Start a Project</span>
+                <Link
+                  href={`/contact${projectTitle ? `?ref=${encodeURIComponent(projectTitle)}` : ""}`}
+                  className="pill primary card-cta-btn"
+                >
+                  <span>Let’s Work Together</span>
                   <ArrowUpRight size={14} />
-                </Link>
-                <Link href="/#about" className="card-secondary-link" title="Learn more about my process">
-                  <MessageSquare size={13} />
-                  <span>Process</span>
                 </Link>
               </div>
             </div>
           )}
-        </motion.div>
+        </motion.aside>
       )}
     </AnimatePresence>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect, ReactNode } from "react";
+import { useMemo, useEffect, useState, ReactNode, Fragment } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -10,10 +10,36 @@ import {
   Calendar,
   Tag,
   BookOpen,
+  List,
 } from "lucide-react";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
 import { useBlogPosts } from "@/lib/useBlogPosts";
+
+interface TocItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function createSlugger() {
+  const counts = new Map<string, number>();
+  return (text: string): string => {
+    const raw = slugify(text) || "section";
+    const count = counts.get(raw) || 0;
+    counts.set(raw, count + 1);
+    return count === 0 ? raw : `${raw}-${count}`;
+  };
+}
 
 function renderInline(text: string): ReactNode {
   const parts: (string | ReactNode)[] = [];
@@ -64,12 +90,13 @@ function renderInline(text: string): ReactNode {
 }
 
 export default function BlogDetailPage() {
-  const params = useParams<{ slug: string }>();
+  const params = useParams();
+  const slug = params?.slug as string;
   const { posts } = useBlogPosts();
 
   const post = useMemo(() => {
-    return posts.find((p) => p.slug === params.slug);
-  }, [posts, params.slug]);
+    return posts.find((p) => p.slug === slug);
+  }, [posts, slug]);
 
   const relatedPosts = useMemo(() => {
     if (!post) return [];
@@ -78,11 +105,201 @@ export default function BlogDetailPage() {
       .slice(0, 2);
   }, [posts, post]);
 
+  const tocItems = useMemo<TocItem[]>(() => {
+    if (!post) return [];
+    const items: TocItem[] = [];
+    const slugger = createSlugger();
+    const paragraphs = post.content.split("\n\n");
+    for (const p of paragraphs) {
+      const trimmed = p.trim();
+      if (trimmed.startsWith("## ")) {
+        const headingLine = trimmed.split("\n")[0];
+        const text = headingLine.replace("## ", "").trim();
+        items.push({ id: slugger(text), text, level: 2 });
+      } else if (trimmed.startsWith("### ")) {
+        const headingLine = trimmed.split("\n")[0];
+        const text = headingLine.replace("### ", "").trim();
+        items.push({ id: slugger(text), text, level: 3 });
+      }
+    }
+    return items;
+  }, [post]);
+
+  const renderedContent = useMemo(() => {
+    if (!post) return null;
+    const bodySlugger = createSlugger();
+    return post.content.split("\n\n").map((paragraph, idx) => {
+      const trimmed = paragraph.trim();
+
+      // Horizontal Rule
+      if (trimmed === "---") {
+        return <hr key={idx} className="prose-hr" />;
+      }
+
+      // Heading 2
+      if (trimmed.startsWith("## ")) {
+        const [headingLine, ...restLines] = trimmed.split("\n");
+        const text = headingLine.replace("## ", "").trim();
+        const id = bodySlugger(text);
+        const restText = restLines.join("\n").trim();
+        return (
+          <Fragment key={idx}>
+            <h2 id={id} className="prose-h2 scroll-mt">
+              {text}
+            </h2>
+            {restText && (
+              <p className="prose-paragraph">{renderInline(restText)}</p>
+            )}
+          </Fragment>
+        );
+      }
+
+      // Heading 3
+      if (trimmed.startsWith("### ")) {
+        const [headingLine, ...restLines] = trimmed.split("\n");
+        const text = headingLine.replace("### ", "").trim();
+        const id = bodySlugger(text);
+        const restText = restLines.join("\n").trim();
+        return (
+          <Fragment key={idx}>
+            <h3 id={id} className="prose-h3 scroll-mt">
+              {text}
+            </h3>
+            {restText && (
+              <p className="prose-paragraph">{renderInline(restText)}</p>
+            )}
+          </Fragment>
+        );
+      }
+
+      // Markdown Table
+      if (trimmed.startsWith("|")) {
+        const lines = trimmed.split("\n").filter((l) => l.trim().startsWith("|"));
+        if (lines.length >= 2) {
+          const headerCells = lines[0]
+            .split("|")
+            .map((c) => c.trim())
+            .filter(Boolean);
+          const dataLines = lines.slice(1).filter((l) => !l.includes("---"));
+
+          return (
+            <div key={idx} className="prose-table-wrap">
+              <table className="prose-table">
+                <thead>
+                  <tr>
+                    {headerCells.map((h, hIdx) => (
+                      <th key={hIdx}>{renderInline(h)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataLines.map((row, rIdx) => {
+                    const cells = row
+                      .split("|")
+                      .map((c) => c.trim())
+                      .filter(Boolean);
+                    return (
+                      <tr key={rIdx}>
+                        {cells.map((cell, cIdx) => (
+                          <td key={cIdx}>{renderInline(cell)}</td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+      }
+
+      // Code block
+      if (trimmed.startsWith("```")) {
+        const code = trimmed.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "");
+        return (
+          <pre key={idx} className="prose-pre">
+            <code>{code}</code>
+          </pre>
+        );
+      }
+
+      // Blockquote
+      if (trimmed.startsWith("> ")) {
+        const quoteText = trimmed
+          .replace(/^> \*/, "")
+          .replace(/\*$/, "")
+          .replace(/^> /, "");
+        return (
+          <blockquote key={idx} className="prose-blockquote">
+            <p>{renderInline(quoteText)}</p>
+          </blockquote>
+        );
+      }
+
+      // Bullet list
+      if (trimmed.startsWith("- ") || trimmed.startsWith("1. ")) {
+        const items = trimmed.split("\n").map((line) => line.replace(/^[-*]|\d+\.\s*/, "").trim());
+        return (
+          <ul key={idx} className="prose-list">
+            {items.map((item, itemIdx) => (
+              <li key={itemIdx}>{renderInline(item)}</li>
+            ))}
+          </ul>
+        );
+      }
+
+      // Regular paragraph
+      return (
+        <p key={idx} className="prose-paragraph">
+          {renderInline(trimmed)}
+        </p>
+      );
+    });
+  }, [post]);
+
+  const [activeId, setActiveId] = useState<string>("");
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
+
   useEffect(() => {
     if (post) {
       document.title = `${post.title} | Muhammad Arslan`;
     }
   }, [post]);
+
+  useEffect(() => {
+    if (tocItems.length === 0) return;
+
+    const handleScroll = () => {
+      // 1. Calculate reading percentage
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const pct = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
+        setScrollProgress(pct);
+      }
+
+      // 2. Determine active heading
+      const scrollPosition = window.scrollY + 130;
+      let currentActive = "";
+
+      for (let i = 0; i < tocItems.length; i++) {
+        const el = document.getElementById(tocItems[i].id);
+        if (el && el.offsetTop <= scrollPosition) {
+          currentActive = tocItems[i].id;
+        }
+      }
+
+      if (!currentActive && tocItems.length > 0) {
+        currentActive = tocItems[0].id;
+      }
+
+      setActiveId(currentActive);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [tocItems]);
 
   if (!post) {
     return (
@@ -188,161 +405,144 @@ export default function BlogDetailPage() {
             </div>
           </section>
 
-          {/* Article Body Content */}
-          <article className="blog-prose-container">
-            <div className="blog-prose-body">
-              {post.content.split("\n\n").map((paragraph, idx) => {
-                const trimmed = paragraph.trim();
-
-                // Horizontal Rule
-                if (trimmed === "---") {
-                  return <hr key={idx} className="prose-hr" />;
-                }
-
-                // Heading 2
-                if (trimmed.startsWith("## ")) {
-                  return (
-                    <h2 key={idx} className="prose-h2">
-                      {trimmed.replace("## ", "")}
-                    </h2>
-                  );
-                }
-
-                // Heading 3
-                if (trimmed.startsWith("### ")) {
-                  return (
-                    <h3 key={idx} className="prose-h3">
-                      {trimmed.replace("### ", "")}
-                    </h3>
-                  );
-                }
-
-                // Markdown Table
-                if (trimmed.startsWith("|")) {
-                  const lines = trimmed.split("\n").filter((l) => l.trim().startsWith("|"));
-                  if (lines.length >= 2) {
-                    const headerCells = lines[0]
-                      .split("|")
-                      .map((c) => c.trim())
-                      .filter(Boolean);
-                    const dataLines = lines.slice(1).filter((l) => !l.includes("---"));
-
-                    return (
-                      <div key={idx} className="prose-table-wrap">
-                        <table className="prose-table">
-                          <thead>
-                            <tr>
-                              {headerCells.map((h, hIdx) => (
-                                <th key={hIdx}>{renderInline(h)}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {dataLines.map((row, rIdx) => {
-                              const cells = row
-                                .split("|")
-                                .map((c) => c.trim())
-                                .filter(Boolean);
-                              return (
-                                <tr key={rIdx}>
-                                  {cells.map((cell, cIdx) => (
-                                    <td key={cIdx}>{renderInline(cell)}</td>
-                                  ))}
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    );
-                  }
-                }
-
-                // Code block
-                if (trimmed.startsWith("```")) {
-                  const code = trimmed.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "");
-                  return (
-                    <pre key={idx} className="prose-pre">
-                      <code>{code}</code>
-                    </pre>
-                  );
-                }
-
-                // Blockquote
-                if (trimmed.startsWith("> ")) {
-                  const quoteText = trimmed
-                    .replace(/^> \*/, "")
-                    .replace(/\*$/, "")
-                    .replace(/^> /, "");
-                  return (
-                    <blockquote key={idx} className="prose-blockquote">
-                      <p>{renderInline(quoteText)}</p>
-                    </blockquote>
-                  );
-                }
-
-                // Bullet list
-                if (trimmed.startsWith("- ") || trimmed.startsWith("1. ")) {
-                  const items = trimmed.split("\n").map((line) => line.replace(/^[-*]|\d+\.\s*/, "").trim());
-                  return (
-                    <ul key={idx} className="prose-list">
-                      {items.map((item, itemIdx) => (
-                        <li key={itemIdx}>{renderInline(item)}</li>
-                      ))}
-                    </ul>
-                  );
-                }
-
-                // Regular paragraph
-                return (
-                  <p key={idx} className="prose-paragraph">
-                    {renderInline(trimmed)}
-                  </p>
-                );
-              })}
-            </div>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="blog-tags-row">
-                <span className="tags-label">
-                  <Tag size={13} /> Tags:
-                </span>
-                <div className="tags-cluster">
-                  {post.tags.map((tag) => (
-                    <span key={tag} className="article-tag-chip">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Author Bio Card */}
-            <div className="author-bio-card">
-              <img
-                src={post.author.avatar}
-                alt={post.author.name}
-                className="bio-avatar"
-              />
-              <div className="bio-info">
-                <div className="bio-header-row">
-                  <div>
-                    <h4 className="bio-name">{post.author.name}</h4>
-                    <span className="bio-role">{post.author.role}</span>
+          {/* Mobile Table of Contents Accordion Bar */}
+          {tocItems.length > 0 && (
+            <div className="blog-mobile-toc-accordion">
+              <details className="mobile-toc-details">
+                <summary className="mobile-toc-summary">
+                  <div className="mobile-toc-summary-left">
+                    <List size={16} />
+                    <span>Table of Contents ({tocItems.length} sections)</span>
                   </div>
-                  <Link href="/contact" className="pill bio-contact-btn">
-                    Work With Me ↗
-                  </Link>
-                </div>
-                <p className="bio-desc">
-                  Specialized in high-density web apps, design systems, and converting
-                  ambiguous product specs into intuitive, scalable digital experiences.
-                  Based in Pakistan, collaborating with founders worldwide.
-                </p>
-              </div>
+                  <span className="mobile-toc-progress">{Math.round(scrollProgress)}% read</span>
+                </summary>
+                <nav className="mobile-toc-nav" aria-label="Mobile table of contents">
+                  {tocItems.map((item, itemIdx) => (
+                    <a
+                      key={`${item.id}-${itemIdx}`}
+                      href={`#${item.id}`}
+                      className={`mobile-toc-link level-${item.level} ${
+                        activeId === item.id ? "active" : ""
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const target = document.getElementById(item.id);
+                        if (target) {
+                          const y = target.getBoundingClientRect().top + window.pageYOffset - 90;
+                          window.scrollTo({ top: y, behavior: "smooth" });
+                        }
+                      }}
+                    >
+                      {item.text}
+                    </a>
+                  ))}
+                </nav>
+              </details>
             </div>
-          </article>
+          )}
+
+          {/* 2-Column Reader Grid: Article (Left) + Table of Contents Sidebar (Right) */}
+          <div className="blog-detail-layout-grid">
+            {/* Article Body Content */}
+            <article className="blog-prose-container">
+              <div className="blog-prose-body">
+                {renderedContent}
+              </div>
+
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="blog-tags-row">
+                  <span className="tags-label">
+                    <Tag size={13} /> Tags:
+                  </span>
+                  <div className="tags-cluster">
+                    {post.tags.map((tag) => (
+                      <span key={tag} className="article-tag-chip">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Author Bio Card */}
+              <div className="author-bio-card">
+                <img
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  className="bio-avatar"
+                />
+                <div className="bio-info">
+                  <div className="bio-header-row">
+                    <div>
+                      <h4 className="bio-name">{post.author.name}</h4>
+                      <span className="bio-role">{post.author.role}</span>
+                    </div>
+                    <Link href="/contact" className="pill bio-contact-btn">
+                      Work With Me ↗
+                    </Link>
+                  </div>
+                  <p className="bio-desc">
+                    Specialized in high-density web apps, design systems, and converting
+                    ambiguous product specs into intuitive, scalable digital experiences.
+                    Based in Pakistan, collaborating with founders worldwide.
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            {/* Sticky Table of Contents Sidebar */}
+            {tocItems.length > 0 && (
+              <aside className="blog-toc-sidebar" aria-label="Table of contents">
+                <div className="blog-toc-sticky-card">
+                  <div className="toc-header">
+                    <span className="toc-eyebrow">Table of Contents</span>
+                    <span className="toc-progress-pill">{Math.round(scrollProgress)}% read</span>
+                  </div>
+
+                  <div className="toc-progress-bar-track">
+                    <div
+                      className="toc-progress-bar-fill"
+                      style={{ width: `${scrollProgress}%` }}
+                    />
+                  </div>
+
+                  <nav className="toc-nav-list" aria-label="Article sections">
+                    {tocItems.map((item, itemIdx) => (
+                      <a
+                        key={`${item.id}-${itemIdx}`}
+                        href={`#${item.id}`}
+                        className={`toc-link level-${item.level} ${
+                          activeId === item.id ? "active" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const target = document.getElementById(item.id);
+                          if (target) {
+                            const y = target.getBoundingClientRect().top + window.pageYOffset - 90;
+                            window.scrollTo({ top: y, behavior: "smooth" });
+                          }
+                        }}
+                      >
+                        <span className="toc-link-text">{item.text}</span>
+                      </a>
+                    ))}
+                  </nav>
+
+                  <div className="toc-sidebar-cta">
+                    <div className="toc-cta-badge">Need a Designer?</div>
+                    <p className="toc-cta-text">
+                      Need a UI/UX designer or Webflow developer for your next product?
+                    </p>
+                    <Link href="/contact" className="pill primary toc-cta-button">
+                      <span>Start a Project</span>
+                      <ArrowUpRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+              </aside>
+            )}
+          </div>
 
           {/* Related Articles Section */}
           {relatedPosts.length > 0 && (
@@ -409,12 +609,7 @@ export default function BlogDetailPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="container footer">
-        <span>© 2026 Muhammad Arslan</span>
-        <span>UI/UX &amp; Product Designer · Sialkot, Pakistan</span>
-        <SocialLinks />
-      </footer>
+      <Footer />
     </>
   );
 }

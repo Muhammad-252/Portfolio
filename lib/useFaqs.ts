@@ -15,56 +15,116 @@ import type { FAQItem } from "./faqTypes";
 
 export const SAMPLE_FAQS: FAQItem[] = [
   {
-    id: "faq-process-1",
-    question: "What is your typical end-to-end design process?",
-    answer: "My process is divided into 4 structured phases: 01 Discovery & Research (analyzing your business goals, target audience, and competitive landscape), 02 Architecture & Wireframing (mapping intuitive user flows and low-fidelity structure), 03 High-Fidelity UI & Prototyping (crafting bespoke design systems, responsive interfaces, and interactive Figma prototypes), and 04 Developer Handoff & QA (supplying tokenized specs, component states, and conducting visual QA during engineering).",
-    category: "Process",
+    id: "faq-1",
+    question: "What does a UI/UX designer do?",
+    answer:
+      "A UI/UX designer solves problems by understanding users, their workflows, and business objectives. I conduct user research, design intuitive information architectures and wireframes, create high-fidelity visual interfaces with comprehensive design systems, and build interactive prototypes to test usability before engineering begins.",
+    category: "General",
     order: 1,
     published: true,
   },
   {
-    id: "faq-timeline-2",
-    question: "How long does a standard project take to complete?",
-    answer: "Project timelines depend on the scope and complexity: a focused marketing website or conversion landing page typically takes 2–3 weeks, while a comprehensive web application, SaaS dashboard, or multi-platform MVP generally spans 6–10 weeks. Every project is broken into clear milestones with weekly progress demos so there are never surprises.",
+    id: "faq-2",
+    question: "How much does a UI/UX design project cost?",
+    answer:
+      "Project investments depend on the scope, number of unique templates or screens, and complexity of features. Focused landing pages or UX audits typically start around $1,000–$2,500, while end-to-end web applications, SaaS dashboards, or full website design-to-build projects range between $3,000 and $8,000+. I offer clear fixed-price milestone billing with no hidden surprises.",
     category: "Timeline & Pricing",
     order: 2,
     published: true,
   },
   {
-    id: "faq-dev-3",
-    question: "Do you handle development or strictly UI/UX design?",
-    answer: "Both! Having a Software Engineering background enables me to design with deep technical empathy. I build production-grade websites in Webflow, WordPress, and Framer, and for custom web applications, I can deliver production-ready Next.js/React frontends or collaborate hand-in-hand with your internal engineering team to ensure 100% design fidelity.",
+    id: "faq-3",
+    question: "Do you design websites and web applications?",
+    answer:
+      "Yes. I design both marketing websites (focused on brand positioning, storytelling, and lead conversion) and complex web applications/SaaS platforms (focused on data density, workflow efficiency, dashboard analytics, and user retention).",
     category: "Deliverables",
     order: 3,
     published: true,
   },
   {
-    id: "faq-deliverables-4",
-    question: "What deliverables and Figma assets do I receive upon completion?",
-    answer: "You receive full ownership of an organized, production-grade Figma project including: complete design tokens (colors, typography, spacing variables, dark/light modes), auto-layout component library with interactive states, responsive desktop and mobile screen layouts, clickable user-flow prototypes, and optimized vector/image assets.",
+    id: "faq-4",
+    question: "Do you provide Webflow development?",
+    answer:
+      "Yes. I build custom, responsive Webflow websites directly from high-fidelity Figma designs using the Client-First naming system. This includes custom CMS collections, responsive layouts, micro-interactions, and on-page editor training so your team can publish content independently.",
     category: "Deliverables",
     order: 4,
     published: true,
   },
   {
-    id: "faq-collab-5",
-    question: "How do we communicate and review progress during the project?",
-    answer: "We communicate through a dedicated Slack or WhatsApp channel for daily updates, questions, and rapid feedback loops, alongside weekly video checkpoints (Google Meet or Zoom) to walk through design iterations. You will also have live view and commenting access in Figma throughout the entire engagement.",
-    category: "Collaboration",
+    id: "faq-5",
+    question: "Do you provide WordPress development?",
+    answer:
+      "Yes. I specialize in custom, lightweight WordPress development utilizing modern Gutenberg block themes or clean custom code. I eliminate plugin bloat, optimize Core Web Vitals for sub-second speeds, and configure WooCommerce or custom post types tailored to your exact business needs.",
+    category: "Deliverables",
     order: 5,
     published: true,
   },
   {
-    id: "faq-audit-6",
-    question: "Can you audit or redesign an existing digital product?",
-    answer: "Absolutely. I frequently conduct UX Audits on active products to diagnose drop-off points, confusing navigation, visual inconsistency, and mobile responsiveness issues. I deliver an actionable heuristic report detailing immediate quick wins alongside a strategic redesign proposal.",
+    id: "faq-6",
+    question: "Can you design and develop a complete website?",
+    answer:
+      "Yes. Providing an end-to-end design and build service is one of my greatest strengths. Because I handle both UX/UI design and Webflow or WordPress development, you eliminate handoff friction, mismatched specifications, and redundant agency coordination.",
     category: "Process",
     order: 6,
     published: true,
   },
+  {
+    id: "faq-7",
+    question: "Can you work with an existing Figma design?",
+    answer:
+      "Absolutely. If you already have approved Figma wireframes or visual designs, I can review them for responsive edge cases and develop them into a pixel-perfect, accessible Webflow or WordPress website.",
+    category: "Process",
+    order: 7,
+    published: true,
+  },
+  {
+    id: "faq-8",
+    question: "How long does a typical project take?",
+    answer:
+      "A focused landing page or marketing website typically takes 2–3 weeks. A complete multi-page marketing website with CMS setup takes 3–5 weeks, and an end-to-end web application or SaaS platform redesign generally spans 6–10 weeks depending on feature complexity.",
+    category: "Timeline & Pricing",
+    order: 8,
+    published: true,
+  },
+  {
+    id: "faq-9",
+    question: "Do you work with startups?",
+    answer:
+      "Yes! A significant portion of my client work is with early-stage and venture-backed startups. I help founders translate ambiguous product concepts into testable MVPs, pitch-ready prototypes, and high-converting launch websites.",
+    category: "General",
+    order: 9,
+    published: true,
+  },
+  {
+    id: "faq-10",
+    question: "Can you redesign an existing website or application?",
+    answer:
+      "Yes. I regularly conduct UX audits and comprehensive redesigns. We identify drop-off points, modernize dated visual aesthetics, establish a systematic component library, and improve mobile responsiveness without disrupting existing SEO equity.",
+    category: "Process",
+    order: 10,
+    published: true,
+  },
+  {
+    id: "faq-11",
+    question: "Do you provide high-fidelity prototypes?",
+    answer:
+      "Yes. Every UI/UX project includes interactive, clickable prototypes in Figma. This allows stakeholders and prospective users to experience real interaction flows, micro-animations, and screen transitions before writing any code.",
+    category: "Deliverables",
+    order: 11,
+    published: true,
+  },
+  {
+    id: "faq-12",
+    question: "How can I start a project with you?",
+    answer:
+      "Simply reach out via the Contact page or send an email to marslanprofessional@gmail.com with a short summary of your project, timeline, and goals. I’ll respond within 24 hours to schedule an introductory call and outline next steps.",
+    category: "Collaboration",
+    order: 12,
+    published: true,
+  },
 ];
 
-const LOCAL_STORAGE_FAQS_KEY = "portfolio_faqs_v1";
+const LOCAL_STORAGE_FAQS_KEY = "portfolio_faqs_v2";
 
 export function useFaqs() {
   const [faqs, setFaqs] = useState<FAQItem[]>(SAMPLE_FAQS);

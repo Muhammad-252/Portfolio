@@ -29,7 +29,7 @@ function normalizeImageUrl(url?: string): string {
 }
 
 export default function ProjectCard({ p }: { p: Project }) {
-  const altText = `${p.title} — ${p.category} ${p.platform} intuitive UI/UX design and scalable web application`;
+  const altText = `${p.title} ${p.industry ? `${p.industry} ` : ""}${p.platform || "digital product"} interface preview`;
   const coverSrc = normalizeImageUrl(p.cover);
 
   return (

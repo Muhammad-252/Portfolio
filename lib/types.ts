@@ -33,4 +33,13 @@ export type Project = {
   featured: boolean;
   published: boolean;
   order: number;
+  // Enhanced Case Study & SEO Fields
+  overview?: string;
+  userExperience?: string;
+  keyFeatures?: string[];
+  designSystem?: string;
+  prototypeInteractions?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  socialImage?: string;
 };

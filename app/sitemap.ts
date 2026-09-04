@@ -5,30 +5,49 @@ export default function sitemap(): MetadataRoute.Sitemap {
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app";
 
-  const staticRoutes = ["", "/work", "/blog", "/contact"].map((route) => ({
+  const staticRoutes = [
+    "",
+    "/work",
+    "/services",
+    "/about",
+    "/blog",
+    "/contact",
+  ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: route === "" ? 1.0 : 0.8,
   }));
 
-  const projectRoutes = ["APS", "propreel", "nextgentraining"].map((slug) => ({
+  const projectSlugs = [
+    "propreel",
+    "estateflow-real-estate",
+    "medipulse-telehealth",
+    "cloudscale-ai-analytics",
+    "luxecraft-ecommerce",
+    "finova-wealth-management",
+    "eduvantage-lms",
+  ];
+
+  const projectRoutes = projectSlugs.map((slug) => ({
     url: `${baseUrl}/work/${slug}`,
     lastModified: new Date(),
     changeFrequency: "monthly" as const,
     priority: 0.85,
   }));
 
-  const blogRoutes = [
+  const blogSlugs = [
     "webflow-vs-wordpress-guide",
     "ui-ux-redesign-mistakes-killing-conversions",
     "figma-to-webflow-development-workflow",
     "modernize-slow-wordpress-website",
-  ].map((slug) => ({
+  ];
+
+  const blogRoutes = blogSlugs.map((slug) => ({
     url: `${baseUrl}/blog/${slug}`,
     lastModified: new Date(),
     changeFrequency: "monthly" as const,
-    priority: 0.9,
+    priority: 0.85,
   }));
 
   return [...staticRoutes, ...projectRoutes, ...blogRoutes];

@@ -52,6 +52,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# Scratch directory
+scratch/
+
 # Misc
 *.log
 .cache/

@@ -1,128 +1,368 @@
 "use client";
 
+import { useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowUpRight } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowLeft,
+  Sparkles,
+  Layers,
+  CheckCircle2,
+  ExternalLink,
+  Code2,
+  Palette,
+  Eye,
+  MonitorSmartphone,
+} from "lucide-react";
 import { usePortfolioProjects } from "@/lib/usePortfolioProjects";
 import ProjectGallery from "@/components/ProjectGallery";
 import CaseStudyFloatingCTA from "@/components/CaseStudyFloatingCTA";
+import ProjectCard from "@/components/ProjectCard";
+import Footer from "@/components/Footer";
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
   const projects = usePortfolioProjects();
-  const project = projects.find((item) => item.slug === params.slug);
-  if (!project)
+
+  const project = useMemo(() => {
+    return projects.find((item) => item.slug === params.slug);
+  }, [projects, params.slug]);
+
+  const relatedProjects = useMemo(() => {
+    if (!project) return [];
+    return projects
+      .filter((p) => p.slug !== project.slug && p.published)
+      .slice(0, 2);
+  }, [projects, project]);
+
+  useEffect(() => {
+    if (project) {
+      const pageTitle =
+        project.seoTitle ||
+        `${project.title} | ${project.category} Case Study — Muhammad Arslan`;
+      document.title = pageTitle;
+    }
+  }, [project]);
+
+  if (!project) {
     return (
-      <main className="container case">
-        <p className="notice">Loading project…</p>
+      <main className="container case" style={{ padding: "120px 0", textAlign: "center" }}>
+        <p className="notice">Loading case study details…</p>
+        <div style={{ marginTop: 24 }}>
+          <Link href="/work" className="pill">
+            ← Return to All Work
+          </Link>
+        </div>
       </main>
     );
+  }
+
   const hasFigma = project.figma && project.figma !== "#";
   const hasLiveSite = project.live && project.live !== "#";
   const coverUrl = project.cover?.startsWith("//")
     ? "https:" + project.cover
     : project.cover || "/images/hero-portrait-v3.png";
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    headline: project.title,
+    description: project.seoDescription || project.description,
+    image: coverUrl,
+    creator: {
+      "@type": "Person",
+      name: "Muhammad Arslan",
+      jobTitle: "UI/UX Designer & Webflow Developer",
+      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+    },
+    genre: project.category,
+    keywords: [
+      project.category,
+      project.industry,
+      project.platform,
+      "UI/UX Design",
+      "Case Study",
+    ].join(", "),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <header className="container nav case-nav">
-        <Link href="/" className="logo">
+        <Link href="/" className="logo" aria-label="Muhammad Arslan Home">
           ARSLAN<i>.</i>
         </Link>
-        <Link href="/work" className="pill">
-          ← All work
-        </Link>
+        <div className="case-nav-actions">
+          <Link href="/work" className="pill">
+            <ArrowLeft size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
+            <span>All Work</span>
+          </Link>
+          <Link href="/contact" className="pill primary">
+            <span>Inquire</span>
+            <ArrowUpRight size={14} />
+          </Link>
+        </div>
       </header>
-      <main className="container case">
+
+      <main className="container case case-study-detailed">
+        {/* 1. Project Hero */}
         <section className="case-hero">
           <div className="case-summary">
-            <div className="kicker">Case study · {project.category}</div>
-            <h1>{project.title}</h1>
-            <p>{project.description}</p>
-            <div className="case-year">{project.year}</div>
+            <div className="case-badge-cluster">
+              <span className="badge badge-category">{project.category}</span>
+              <span className="badge badge-industry">{project.industry}</span>
+              <span className="badge badge-platform">{project.platform}</span>
+            </div>
+
+            <h1 className="case-hero-h1">{project.title}</h1>
+            <p className="case-hero-desc">{project.description}</p>
+
+            <div className="case-meta-bar">
+              <div className="meta-item">
+                <small>Timeline</small>
+                <b>{project.year}</b>
+              </div>
+              <div className="meta-item">
+                <small>Role</small>
+                <b>{project.role}</b>
+              </div>
+              <div className="meta-item">
+                <small>Client</small>
+                <b>{project.client}</b>
+              </div>
+              <div className="meta-item">
+                <small>Duration</small>
+                <b>{project.duration}</b>
+              </div>
+            </div>
+
+            <div className="case-hero-actions">
+              {hasLiveSite && (
+                <a
+                  className="pill primary"
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>Live Project</span>
+                  <ArrowUpRight size={15} />
+                </a>
+              )}
+              {hasFigma && (
+                <a
+                  className="pill"
+                  href={project.figma}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>Figma Preview</span>
+                  <ExternalLink size={14} />
+                </a>
+              )}
+            </div>
           </div>
+
           <div className="case-cover">
             <img
               src={coverUrl}
-              alt={project.title}
+              alt={`${project.title} ${project.platform} design showcase cover`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
                   "/images/hero-portrait-v3.png";
               }}
             />
             <div className="case-cover-label">
-              Selected work
-              <br />
+              <span>{project.industry}</span>
               <strong>{project.year}</strong>
             </div>
           </div>
         </section>
-        <section className="case-info">
-          {[
-            ["Role", project.role],
-            ["Client", project.client],
-            ["Duration", project.duration],
-            ["Tools", project.tools.join(" · ")],
-          ].map((item) => (
-            <div className="info" key={item[0]}>
-              <small>{item[0]}</small>
-              <b>{item[1]}</b>
-            </div>
-          ))}
-        </section>
-        <section className="case-story">
-          <div className="case-story-label">
-            <div className="kicker">Behind the work</div>
-            <span>01—04</span>
+
+        {/* Tools & Environment Ribbon */}
+        <section className="case-tools-ribbon" aria-label="Technologies and methods used">
+          <span className="ribbon-label">Tools &amp; Methods:</span>
+          <div className="ribbon-chips">
+            {project.tools.map((t) => (
+              <span key={t} className="tool-chip">
+                {t}
+              </span>
+            ))}
           </div>
-          <article className="case-body">
-            <div>
-              <span className="case-number">01</span>
-              <h2>The challenge</h2>
-              <p>{project.challenge}</p>
+        </section>
+
+        {/* 2. Project Overview */}
+        {project.overview && (
+          <section className="case-section case-overview-block">
+            <div className="case-section-kicker">
+              <div className="kicker">Context</div>
+              <h2>Project Overview</h2>
             </div>
-            <div>
-              <span className="case-number">02</span>
-              <h2>My approach</h2>
-              <p>{project.process}</p>
+            <div className="case-prose-lead">
+              <p>{project.overview}</p>
             </div>
-            <div>
-              <span className="case-number">03</span>
-              <h2>The solution</h2>
-              <p>{project.solution}</p>
+          </section>
+        )}
+
+        {/* 3. The Challenge & 4. My Approach & 5. The Solution */}
+        <section className="case-section case-narrative-triad">
+          <div className="narrative-card">
+            <div className="narrative-index">01</div>
+            <h3>The Challenge</h3>
+            <p>{project.challenge}</p>
+          </div>
+
+          <div className="narrative-card">
+            <div className="narrative-index">02</div>
+            <h3>My Approach</h3>
+            <p>{project.process}</p>
+          </div>
+
+          <div className="narrative-card">
+            <div className="narrative-index">03</div>
+            <h3>The Solution</h3>
+            <p>{project.solution}</p>
+          </div>
+        </section>
+
+        {/* 6. User Experience */}
+        {project.userExperience && (
+          <section className="case-section case-ux-block">
+            <div className="case-section-kicker">
+              <div className="kicker">Human-Centered Architecture</div>
+              <h2>User Experience &amp; Interaction Decisions</h2>
             </div>
-            <div>
-              <span className="case-number">04</span>
-              <h2>Outcome</h2>
+            <div className="case-prose-card">
+              <p>{project.userExperience}</p>
+            </div>
+          </section>
+        )}
+
+        {/* 7. Key Features */}
+        {project.keyFeatures && project.keyFeatures.length > 0 && (
+          <section className="case-section case-features-block">
+            <div className="case-section-kicker">
+              <div className="kicker">Functionality</div>
+              <h2>Key Product Features</h2>
+            </div>
+            <div className="case-features-grid">
+              {project.keyFeatures.map((feat, idx) => (
+                <div key={idx} className="case-feature-item">
+                  <CheckCircle2 size={18} className="feature-check" />
+                  <span>{feat}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 8. Design System & 9. Prototype & Interactions */}
+        {(project.designSystem || project.prototypeInteractions) && (
+          <section className="case-section case-systems-grid">
+            {project.designSystem && (
+              <div className="systems-card">
+                <div className="systems-header">
+                  <Palette size={18} />
+                  <h3>Design System &amp; Tokens</h3>
+                </div>
+                <p>{project.designSystem}</p>
+              </div>
+            )}
+
+            {project.prototypeInteractions && (
+              <div className="systems-card">
+                <div className="systems-header">
+                  <Sparkles size={18} />
+                  <h3>Prototype &amp; Micro-Interactions</h3>
+                </div>
+                <p>{project.prototypeInteractions}</p>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* 10. Outcome */}
+        <section className="case-section case-outcome-block">
+          <div className="case-section-kicker">
+            <div className="kicker">Validation &amp; Impact</div>
+            <h2>Project Outcome</h2>
+          </div>
+          <div className="outcome-banner">
+            <div className="outcome-icon-orb">
+              <CheckCircle2 size={24} />
+            </div>
+            <div className="outcome-content">
+              <h4>Real-World Results</h4>
               <p>{project.outcome}</p>
             </div>
-            <div className="case-actions">
-              {hasFigma && (
-                <a
-                  className="pill"
-                  href={project.figma}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View Figma <ArrowUpRight size={16} />
-                </a>
-              )}
-              {hasLiveSite && (
-                <a
-                  className="pill primary"
-                  href={project.live}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View live project <ArrowUpRight size={16} />
-                </a>
-              )}
-            </div>
-          </article>
+          </div>
         </section>
-        <ProjectGallery images={project.gallery} />
+
+        {/* 11. Project Gallery (Circular 3D Showcase & Modal) */}
+        {project.gallery && project.gallery.length > 0 && (
+          <section className="case-section case-gallery-section" aria-label="Project Visual Gallery">
+            <ProjectGallery images={project.gallery} />
+          </section>
+        )}
+
+        {/* 12. Related Projects */}
+        {relatedProjects.length > 0 && (
+          <section className="case-section case-related-section">
+            <div className="section-head">
+              <div>
+                <div className="kicker">Selected Work</div>
+                <h2>Explore More Projects</h2>
+              </div>
+              <div className="section-head-side">
+                <Link href="/work" className="pill">
+                  <span>View All Case Studies</span>
+                  <ArrowUpRight size={15} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="projects work-grid" style={{ marginTop: 24 }}>
+              {relatedProjects.map((rel) => (
+                <ProjectCard key={rel.id || rel.slug} p={rel} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 13. Case Study End CTA */}
+        <section className="case-bottom-cta-section">
+          <div className="cta">
+            <div className="kicker">Have a Similar Challenge?</div>
+            <h2>Let’s create something that works for your business.</h2>
+            <p style={{ maxWidth: 580, margin: "16px auto 26px", color: "var(--muted)" }}>
+              I’m available for freelance UI/UX design, Webflow development, and full product design contracts.
+            </p>
+            <div className="actions" style={{ justifyContent: "center" }}>
+              <Link
+                className="pill primary"
+                href={`/contact?ref=${encodeURIComponent(project.title)}`}
+              >
+                <span>Let&apos;s Work Together</span>
+                <ArrowUpRight size={16} />
+              </Link>
+              <Link className="pill" href="/work">
+                <span>View More Work</span>
+                <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Floating CTA (Desktop Floating Card & Mobile Sticky Bottom) */}
       <CaseStudyFloatingCTA projectTitle={project.title} />
+
+      <Footer />
     </>
   );
 }

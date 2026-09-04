@@ -14,14 +14,20 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
 import { useBlogPosts } from "@/lib/useBlogPosts";
 import { BLOG_CATEGORIES } from "@/lib/blogTypes";
+import { useEffect } from "react";
 
 export default function BlogListingPage() {
   const { posts } = useBlogPosts();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  useEffect(() => {
+    document.title = "Design & Web Development Articles | Muhammad Arslan";
+  }, []);
 
   const publishedPosts = useMemo(() => {
     return posts.filter((p) => p.published);
@@ -289,12 +295,7 @@ export default function BlogListingPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="container footer">
-        <span>© 2026 Muhammad Arslan</span>
-        <span>UI/UX &amp; Product Designer · Sialkot, Pakistan</span>
-        <SocialLinks />
-      </footer>
+      <Footer />
     </>
   );
 }

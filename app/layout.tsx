@@ -1,10 +1,57 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import BackToTop from "@/components/BackToTop";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Muhammad Arslan — UI/UX & Product Designer",
-  description: "Portfolio of Muhammad Arslan — UI/UX, product, web and no-code design.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    template: "%s | Muhammad Arslan",
+  },
+  description:
+    "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+  keywords: [
+    "UI/UX Designer",
+    "Webflow Developer",
+    "WordPress Developer",
+    "Product Designer",
+    "Digital Product Designer",
+    "Freelance UI/UX Designer",
+    "UI/UX Designer for Startups",
+    "Webflow Designer and Developer",
+    "WordPress UI/UX Designer",
+    "Figma UI/UX Designer",
+  ],
+  authors: [{ name: "Muhammad Arslan", url: siteUrl }],
+  creator: "Muhammad Arslan",
+  publisher: "Muhammad Arslan",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Muhammad Arslan Portfolio",
+    title: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    description:
+      "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Muhammad Arslan — UI/UX Designer, Webflow & WordPress Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    description:
+      "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+    images: ["/og-image.png"],
+  },
   verification: {
     google: "googlec66e29b6126c6554",
   },
@@ -18,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body suppressHydrationWarning>
         {children}
+        <BackToTop />
         <WhatsAppFloat />
       </body>
     </html>
