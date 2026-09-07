@@ -16,6 +16,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
 import { useBlogPosts } from "@/lib/useBlogPosts";
+import { sanitizeJsonLd, sanitizeUrl } from "@/lib/security";
 
 interface TocItem {
   id: string;
@@ -52,16 +53,17 @@ function renderInline(text: string): ReactNode {
       parts.push(text.substring(lastIndex, match.index));
     }
     if (match[1] && match[2]) {
-      const isInternal = match[2].startsWith("/");
+      const safeLink = sanitizeUrl(match[2], "#");
+      const isInternal = safeLink.startsWith("/") || safeLink.startsWith("#");
       parts.push(
         isInternal ? (
-          <Link key={match.index} href={match[2]} className="prose-link">
+          <Link key={match.index} href={safeLink} className="prose-link">
             {match[1]}
           </Link>
         ) : (
           <a
             key={match.index}
-            href={match[2]}
+            href={safeLink}
             target="_blank"
             rel="noopener noreferrer"
             className="prose-link"
@@ -354,7 +356,7 @@ export default function BlogDetailPage() {
       {/* Technical SEO: Schema.org BlogPosting Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(schemaData) }}
       />
 
       <main className="blog-detail-root">

@@ -190,18 +190,37 @@ export default function Admin() {
     }
   }
 
+  const ALLOWED_ADMIN_EMAILS = [
+    "arslanmayo24@gmail.com",
+    "marslanprofessional@gmail.com",
+    (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").toLowerCase(),
+  ].filter(Boolean);
+
+  const isAuthorizedAdmin = Boolean(
+    user && user.email && ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase())
+  );
+
   useEffect(() => {
-    if (user || !firebaseConfigured) {
+    if (isAuthorizedAdmin && firebaseConfigured) {
       load();
     }
-  }, [user]);
+  }, [isAuthorizedAdmin]);
 
   async function login() {
     try {
       setMsg("");
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch (e: any) {
-      setMsg(e.message);
+      if (!email.trim() || !pass) {
+        setMsg("Please provide both email and password.");
+        return;
+      }
+      const res = await signInWithEmailAndPassword(auth, email.trim(), pass);
+      if (!ALLOWED_ADMIN_EMAILS.includes(res.user.email?.toLowerCase() || "")) {
+        await signOut(auth);
+        setUser(null);
+        setMsg("Access denied. This account does not possess administrator privileges.");
+      }
+    } catch {
+      setMsg("Invalid credentials. Please verify your email and password.");
     }
   }
 
@@ -418,8 +437,46 @@ export default function Admin() {
     );
   }, [posts, blogSearch]);
 
-  // Login View
-  if (firebaseConfigured && auth && !user && authChecked) {
+  // 1. Loading security verification state
+  if (!authChecked) {
+    return (
+      <main className="admin-shell">
+        <div className="admin-login-wrapper">
+          <div className="admin-login-card" style={{ textAlign: "center", padding: "48px 32px" }}>
+            <div className="system-status-pulse" style={{ margin: "0 auto 16px auto" }} />
+            <p style={{ color: "#999", fontSize: 14 }}>Verifying security credentials…</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // 2. Cloud authentication required
+  if (!firebaseConfigured || !auth) {
+    return (
+      <main className="admin-shell">
+        <div className="admin-login-wrapper">
+          <div className="admin-login-card" style={{ textAlign: "center" }}>
+            <div className="login-badge" style={{ color: "#ff6b6b", borderColor: "rgba(255,107,107,0.3)" }}>
+              <Shield size={14} /> Configuration Required
+            </div>
+            <h1>Admin Access Restricted</h1>
+            <p style={{ marginTop: 12, color: "#aaa" }}>
+              Administrative management requires authenticated cloud credentials. Please configure valid Firebase environment variables to access this console.
+            </p>
+            <div style={{ marginTop: 24 }}>
+              <a href="/" className="back-site-link">
+                ← Return to Public Portfolio
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // 3. Unauthenticated login form
+  if (!user) {
     return (
       <main className="admin-shell">
         <div className="admin-login-wrapper">
@@ -440,6 +497,7 @@ export default function Admin() {
                 placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
             </div>
             <div className="field" style={{ marginTop: 16 }}>
@@ -451,6 +509,7 @@ export default function Admin() {
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && login()}
+                autoComplete="current-password"
               />
             </div>
             <div className="admin-actions" style={{ marginTop: 24 }}>
@@ -464,6 +523,36 @@ export default function Admin() {
               </a>
             </div>
             {msg && <div className="notice" style={{ marginTop: 16 }}>{msg}</div>}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // 4. Authenticated but unauthorized user
+  if (!isAuthorizedAdmin) {
+    return (
+      <main className="admin-shell">
+        <div className="admin-login-wrapper">
+          <div className="admin-login-card" style={{ textAlign: "center" }}>
+            <div className="login-badge" style={{ color: "#ff6b6b", borderColor: "rgba(255,107,107,0.3)" }}>
+              <Shield size={14} /> Access Denied
+            </div>
+            <h1>Unauthorized Account</h1>
+            <p style={{ marginTop: 12, color: "#aaa" }}>
+              You are signed in as <strong>{user.email}</strong>. This account is not authorized to access administrative features.
+            </p>
+            <div style={{ marginTop: 24 }}>
+              <button
+                className="pill primary"
+                onClick={async () => {
+                  if (auth) await signOut(auth);
+                  setUser(null);
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </main>

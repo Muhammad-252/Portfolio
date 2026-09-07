@@ -2,56 +2,73 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Portfolio projects: Public read, admin write
+
+    // Helper: Verify administrator identity strictly by verified email or custom admin claim
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'arslanmayo24@gmail.com' ||
+        request.auth.token.email == 'marslanprofessional@gmail.com' ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // Portfolio projects: Public read, strictly authorized admin write
     match /projects/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
-    // Blog articles: Public read, admin write
+    // Blog articles: Public read, strictly authorized admin write
     match /posts/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
-    // FAQs: Public read, admin write
+    // FAQs: Public read, strictly authorized admin write
     match /faqs/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
-    // Dynamic taxonomies & site settings: Public read, admin write
+    // Dynamic taxonomies & site settings: Public read, strictly authorized admin write
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     match /industries/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     match /categories/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
-    // Contact messages: Public submission, admin read/manage
+    // Contact messages: Schema-validated submission, admin-only read/manage
     match /messages/{id} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow create: if request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 120
+        && request.resource.data.message is string
+        && request.resource.data.message.size() <= 3000;
+      allow read, update, delete: if isAdmin();
     }
 
-    // Newsletter subscribers: Public subscription, admin read/manage
+    // Newsletter subscribers: Schema-validated subscription, admin-only read/manage
     match /subscribers/{id} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 120;
+      allow read, update, delete: if isAdmin();
     }
 
-    // Default fallback: Require authentication
+    // Default fallback: Strict denial to prevent unauthorized read/write of unmapped collections
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

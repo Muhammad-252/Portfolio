@@ -49,7 +49,13 @@ export default function Footer() {
 
       <div className="footer-bottom-bar">
         <span>© {new Date().getFullYear()} Muhammad Arslan. All rights reserved.</span>
-        <span>Designed with purpose · Engineered with precision</span>
+        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <Link href="/privacy" style={{ color: "var(--muted)", textDecoration: "none", fontSize: "12px" }}>
+            Privacy Policy
+          </Link>
+          <span>·</span>
+          <span>Designed with purpose · Engineered with precision</span>
+        </div>
       </div>
     </footer>
   );

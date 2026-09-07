@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import LiveProjectGrid from "@/components/LiveProjectGrid";
 import HomeFAQ from "@/components/HomeFAQ";
 import Footer from "@/components/Footer";
+import { sanitizeJsonLd } from "@/lib/security";
 import {
   ArrowUpRight,
   Sparkles,
@@ -46,7 +47,7 @@ export default function Home() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
       />
       <Nav />
       <main id="main-content">

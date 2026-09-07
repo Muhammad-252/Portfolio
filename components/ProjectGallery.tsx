@@ -17,7 +17,7 @@ interface ProjectGalleryProps {
 }
 
 function normalizeImg(src?: string) {
-  if (!src) return "/images/hero-portrait-v3.png";
+  if (!src) return "/images/project-placeholder.svg";
   if (src.startsWith("//")) return "https:" + src;
   return src;
 }
@@ -209,8 +209,10 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
                     loading={isCenter ? "eager" : "lazy"}
                     decoding="async"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src =
-                        "/images/hero-portrait-v3.png";
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                        target.src = "/images/project-placeholder.svg";
+                      }
                     }}
                   />
 

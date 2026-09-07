@@ -48,7 +48,7 @@ export default function SocialLinks({
           key={profile.label}
           href={profile.href}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           aria-label={profile.label}
         >
           <span className="social-icon">{profile.icon}</span>

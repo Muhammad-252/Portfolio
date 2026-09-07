@@ -19,7 +19,7 @@ function getPlatformIcon(platform?: string) {
 
 function normalizeImageUrl(url?: string): string {
   if (!url || typeof url !== "string" || !url.trim()) {
-    return "/images/hero-portrait-v3.png";
+    return "/images/project-placeholder.svg";
   }
   const clean = url.trim();
   if (clean.startsWith("//")) {
@@ -49,8 +49,10 @@ export default function ProjectCard({ p }: { p: Project }) {
             loading="lazy"
             decoding="async"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src =
-                "/images/hero-portrait-v3.png";
+              const target = e.currentTarget as HTMLImageElement;
+              if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                target.src = "/images/project-placeholder.svg";
+              }
             }}
           />
           <div className="project-image-shade" />

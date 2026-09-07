@@ -20,6 +20,7 @@ import ProjectGallery from "@/components/ProjectGallery";
 import CaseStudyFloatingCTA from "@/components/CaseStudyFloatingCTA";
 import ProjectCard from "@/components/ProjectCard";
 import Footer from "@/components/Footer";
+import { sanitizeJsonLd, sanitizeUrl } from "@/lib/security";
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
@@ -58,11 +59,13 @@ export default function CaseStudyPage() {
     );
   }
 
-  const hasFigma = project.figma && project.figma !== "#";
-  const hasLiveSite = project.live && project.live !== "#";
+  const safeLive = sanitizeUrl(project.live, "#");
+  const safeFigma = sanitizeUrl(project.figma, "#");
+  const hasFigma = safeFigma !== "#";
+  const hasLiveSite = safeLive !== "#";
   const coverUrl = project.cover?.startsWith("//")
     ? "https:" + project.cover
-    : project.cover || "/images/hero-portrait-v3.png";
+    : project.cover || "/images/project-placeholder.svg";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -91,7 +94,7 @@ export default function CaseStudyPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(jsonLd) }}
       />
 
       <header className="container nav case-nav">
@@ -146,7 +149,7 @@ export default function CaseStudyPage() {
               {hasLiveSite && (
                 <a
                   className="pill primary"
-                  href={project.live}
+                  href={safeLive}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -157,7 +160,7 @@ export default function CaseStudyPage() {
               {hasFigma && (
                 <a
                   className="pill"
-                  href={project.figma}
+                  href={safeFigma}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -173,8 +176,10 @@ export default function CaseStudyPage() {
               src={coverUrl}
               alt={`${project.title} ${project.platform} design showcase cover`}
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src =
-                  "/images/hero-portrait-v3.png";
+                const target = e.currentTarget as HTMLImageElement;
+                if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                  target.src = "/images/project-placeholder.svg";
+                }
               }}
             />
             <div className="case-cover-label">

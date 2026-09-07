@@ -16,6 +16,8 @@ import {
 import Nav from "@/components/Nav";
 import SocialLinks from "@/components/SocialLinks";
 import Footer from "@/components/Footer";
+import Link from "next/link";
+import { isValidEmail, rateLimitCheck } from "@/lib/security";
 
 const PROJECT_TYPES = [
   "UI/UX Design",
@@ -40,17 +42,51 @@ export default function ContactPage() {
   const [projectType, setProjectType] = useState("UI/UX Design");
   const [budget, setBudget] = useState("$3,000 – $5,000");
 
+  const [formError, setFormError] = useState("");
+
   useEffect(() => {
     document.title = "Contact Muhammad Arslan | UI/UX Designer & Webflow Developer";
   }, []);
 
   function submitForm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFormError("");
+
     const form = new FormData(event.currentTarget);
-    const name = form.get("name") || "";
-    const email = form.get("email") || "";
-    const company = form.get("company") || "Not specified";
-    const message = form.get("message") || "";
+
+    // 1. Honeypot check for automated bot scrapers
+    const botcheck = form.get("botcheck");
+    if (botcheck) {
+      return; // Silently drop bot submission
+    }
+
+    // 2. Submission rate-limiting (10 second cooldown)
+    const throttle = rateLimitCheck("contact_form", 10000);
+    if (!throttle.allowed) {
+      setFormError(`Please wait ${throttle.remainingSec}s before submitting again.`);
+      return;
+    }
+
+    // 3. Input sanitization and validation
+    const name = (form.get("name")?.toString() || "").trim().slice(0, 100);
+    const email = (form.get("email")?.toString() || "").trim().slice(0, 120);
+    const company = (form.get("company")?.toString() || "").trim().slice(0, 120) || "Not specified";
+    const message = (form.get("message")?.toString() || "").trim().slice(0, 3000);
+
+    if (!name) {
+      setFormError("Please enter your name.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setFormError("Please enter a valid work email address.");
+      return;
+    }
+
+    if (!message) {
+      setFormError("Please provide an overview of your project.");
+      return;
+    }
 
     const subject = `Project Inquiry from ${name} (${projectType})`;
     const body = `Name: ${name}\nEmail: ${email}\nCompany: ${company}\nProject Type: ${projectType}\nBudget Range: ${budget}\n\nProject Overview:\n${message}`;
@@ -151,6 +187,16 @@ export default function ContactPage() {
                   ))}
                 </div>
 
+                {/* Anti-bot Honeypot field (hidden from legitimate users) */}
+                <input
+                  type="text"
+                  name="botcheck"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  style={{ display: "none", position: "absolute", left: "-9999px" }}
+                  aria-hidden="true"
+                />
+
                 <div className="form-section-title">03 · Project &amp; Contact Details</div>
                 <div className="inputs-2col">
                   <div className="input-field-group">
@@ -159,7 +205,9 @@ export default function ContactPage() {
                       className="modern-input"
                       name="name"
                       required
+                      maxLength={100}
                       placeholder="e.g. Alex Morgan"
+                      autoComplete="name"
                     />
                   </div>
                   <div className="input-field-group">
@@ -168,8 +216,10 @@ export default function ContactPage() {
                       className="modern-input"
                       name="email"
                       required
+                      maxLength={120}
                       type="email"
                       placeholder="alex@company.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -179,7 +229,9 @@ export default function ContactPage() {
                   <input
                     className="modern-input"
                     name="company"
+                    maxLength={120}
                     placeholder="e.g. Acme Studio, early-stage startup, or your current URL"
+                    autoComplete="organization"
                   />
                 </div>
 
@@ -189,10 +241,17 @@ export default function ContactPage() {
                     className="modern-textarea"
                     name="message"
                     required
+                    maxLength={3000}
                     rows={4}
                     placeholder="Tell me about your product, what you want to achieve, timeline, or links to existing designs / references..."
                   />
                 </div>
+
+                {formError && (
+                  <div className="notice" style={{ color: "#ff6b6b", borderColor: "rgba(255,107,107,0.3)" }}>
+                    {formError}
+                  </div>
+                )}
 
                 <div className="form-action-row-v3">
                   <button className="submit-pill-btn" type="submit">
@@ -204,6 +263,13 @@ export default function ContactPage() {
                     <span>Direct reply from Muhammad within 24h · Strict NDA</span>
                   </div>
                 </div>
+
+                <p style={{ marginTop: 14, fontSize: 12, color: "#777", lineHeight: 1.5 }}>
+                  Your brief is handled with strict confidentiality. For details on data handling, see our{" "}
+                  <Link href="/privacy" style={{ color: "#aaa", textDecoration: "underline" }}>
+                    Privacy Policy
+                  </Link>.
+                </p>
               </form>
             )}
           </div>
