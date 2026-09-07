@@ -78,7 +78,7 @@ export default function CaseStudyPage() {
       "@type": "Person",
       name: "Muhammad Arslan",
       jobTitle: "UI/UX Designer & Webflow Developer",
-      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+      url: "https://www.muhammadarslan.com",
     },
     genre: project.category,
     keywords: [

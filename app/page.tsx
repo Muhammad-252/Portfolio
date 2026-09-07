@@ -24,7 +24,7 @@ export default function Home() {
     "@type": "Person",
     name: "Muhammad Arslan",
     jobTitle: "UI/UX Designer, Webflow & WordPress Developer",
-    url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+    url: "https://www.muhammadarslan.com",
     sameAs: [
       "https://www.linkedin.com/in/muhammad-arslan-pak786/",
       "https://www.behance.net/muhammadarslan294",

@@ -333,18 +333,18 @@ export default function BlogDetailPage() {
       "@type": "Person",
       name: post.author.name,
       jobTitle: post.author.role,
-      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+      url: "https://www.muhammadarslan.com",
     },
     publisher: {
       "@type": "Person",
       name: "Muhammad Arslan",
-      url: "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app",
+      url: "https://www.muhammadarslan.com",
     },
     datePublished: "2026-03-03T00:00:00+05:00",
     dateModified: "2026-03-03T00:00:00+05:00",
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app/blog/${post.slug}`,
+      "@id": `https://www.muhammadarslan.com/blog/${post.slug}`,
     },
     keywords: post.tags?.join(", "),
   };

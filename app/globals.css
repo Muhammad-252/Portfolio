@@ -9114,6 +9114,27 @@ body:before {
   box-shadow: 0 0 0 3px rgba(215, 255, 63, 0.12);
 }
 
+.modern-input.input-error,
+.modern-textarea.input-error {
+  border-color: #ff5252 !important;
+  background: rgba(255, 82, 82, 0.05) !important;
+  box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.15) !important;
+}
+
+.field-error-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-top: 4px;
+}
+
+.field-error-text svg {
+  flex-shrink: 0;
+}
+
 .modern-textarea {
   min-height: 120px;
   resize: vertical;

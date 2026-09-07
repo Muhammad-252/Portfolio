@@ -4,7 +4,7 @@ import "./globals.css";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portfolio-smoky-sigma-eatwqaaxyp.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.muhammadarslan.com";
 const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-REV2ZTCNLB";
 
 export const metadata: Metadata = {
