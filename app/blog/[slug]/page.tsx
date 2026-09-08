@@ -15,6 +15,7 @@ import {
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
+import BlobButton from "@/components/ui/BlobButton";
 import { useBlogPosts } from "@/lib/useBlogPosts";
 import { sanitizeJsonLd, sanitizeUrl } from "@/lib/security";
 
@@ -480,9 +481,9 @@ export default function BlogDetailPage() {
                       <h4 className="bio-name">{post.author.name}</h4>
                       <span className="bio-role">{post.author.role}</span>
                     </div>
-                    <Link href="/contact" className="pill bio-contact-btn">
+                    <BlobButton href="/contact" variant="secondary" size="sm" className="bio-contact-btn">
                       Work With Me ↗
-                    </Link>
+                    </BlobButton>
                   </div>
                   <p className="bio-desc">
                     Specialized in high-density web apps, design systems, and converting
@@ -536,10 +537,10 @@ export default function BlogDetailPage() {
                     <p className="toc-cta-text">
                       Need a UI/UX designer or Webflow developer for your next product?
                     </p>
-                    <Link href="/contact" className="pill primary toc-cta-button">
+                    <BlobButton href="/contact" variant="primary" size="sm" className="toc-cta-button">
                       <span>Start a Project</span>
                       <ArrowUpRight size={13} />
-                    </Link>
+                    </BlobButton>
                   </div>
                 </div>
               </aside>
@@ -555,9 +556,9 @@ export default function BlogDetailPage() {
                   <h2>Related perspectives.</h2>
                 </div>
                 <div className="section-head-side">
-                  <Link href="/blog" className="pill">
+                  <BlobButton href="/blog" variant="secondary" size="sm">
                     View All Articles ↗
-                  </Link>
+                  </BlobButton>
                 </div>
               </div>
 
@@ -599,12 +600,12 @@ export default function BlogDetailPage() {
                 or an expert UX audit, let&apos;s build something exceptional together.
               </p>
               <div className="actions" style={{ justifyContent: "center" }}>
-                <Link href="/contact" className="pill primary">
+                <BlobButton href="/contact" variant="primary" size="lg">
                   Start a Project ↗
-                </Link>
-                <Link href="/work" className="pill">
+                </BlobButton>
+                <BlobButton href="/work" variant="secondary" size="lg">
                   View Case Studies
-                </Link>
+                </BlobButton>
               </div>
             </div>
           </section>

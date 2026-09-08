@@ -9634,3 +9634,313 @@ a.pill:hover svg {
   width: 16px;
   height: 16px;
 }
+
+/* ==========================================================================
+   Lenis Smooth Scrolling & Section Animations
+   ========================================================================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Jelly Wave Divider */
+.jelly-wave-wrap {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  position: relative;
+  z-index: 20;
+}
+
+.jelly-wave-svg {
+  width: 100%;
+  display: block;
+  transition: transform 0.075s ease-out;
+  will-change: transform;
+  transform-origin: top center;
+}
+
+/* Stacked Section */
+.stacked-section-container {
+  position: sticky;
+  top: 0;
+  width: 100%;
+}
+
+.stacked-section-card {
+  width: 100%;
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Section Reveal */
+.section-reveal-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.section-reveal-inner {
+  width: 100%;
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Blob Button Component (Gooey Liquid Hover)
+   ========================================================================== */
+.blob-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  isolation: isolate;
+  background: transparent;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  vertical-align: middle;
+}
+
+.blob-btn:active {
+  transform: scale(0.97);
+}
+
+.blob-btn:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+
+.blob-btn--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Sizes */
+.blob-btn--sm {
+  padding: 8px 16px;
+  font-size: 13px;
+  gap: 6px;
+}
+
+.blob-btn--md {
+  padding: 12px 22px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.blob-btn--lg {
+  padding: 15px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  gap: 10px;
+}
+
+/* Content layer (Text + Icons) */
+.blob-btn__content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  width: 100%;
+  pointer-events: none;
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.blob-btn__content svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.blob-btn:hover .blob-btn__content svg {
+  transform: translate(2.5px, -2.5px);
+}
+
+/* Inner overflow container to clip blobs cleanly to button radius */
+.blob-btn__inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Blobs container with the SVG gooey filter applied */
+.blob-btn__blobs {
+  position: relative;
+  display: block;
+  height: 100%;
+  filter: url(#blob-goo-filter);
+}
+
+/* Individual liquid blobs */
+.blob-btn__blob {
+  position: absolute;
+  top: 2px;
+  width: 38%;
+  height: 100%;
+  background: var(--blob-color, #ffffff);
+  border-radius: 100%;
+  transform: translate3d(0, 160%, 0) scale(1.85);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Hover: blobs rise smoothly into the button */
+.blob-btn:hover .blob-btn__blob {
+  transform: translate3d(0, 0%, 0) scale(1.85);
+}
+
+/* Forward stagger delays on hover (left to right) */
+.blob-btn:hover .blob-btn__blob:nth-child(1) { left: -5%; transition-delay: 0s; }
+.blob-btn:hover .blob-btn__blob:nth-child(2) { left: 24%; transition-delay: 0.05s; }
+.blob-btn:hover .blob-btn__blob:nth-child(3) { left: 52%; transition-delay: 0.1s; }
+.blob-btn:hover .blob-btn__blob:nth-child(4) { left: 80%; transition-delay: 0.15s; }
+
+/* Reverse stagger delays on mouse leave (right to left) */
+.blob-btn .blob-btn__blob:nth-child(1) { left: -5%; transition-delay: 0.15s; }
+.blob-btn .blob-btn__blob:nth-child(2) { left: 24%; transition-delay: 0.1s; }
+.blob-btn .blob-btn__blob:nth-child(3) { left: 52%; transition-delay: 0.05s; }
+.blob-btn .blob-btn__blob:nth-child(4) { left: 80%; transition-delay: 0s; }
+
+/* Variants */
+/* Primary: Luxury Lime glow & fill */
+.blob-btn--primary {
+  border: 1.5px solid var(--lime);
+  background: rgba(215, 255, 63, 0.07);
+  box-shadow: 0 4px 18px rgba(215, 255, 63, 0.15);
+}
+
+.blob-btn--primary .blob-btn__content {
+  color: #ffffff;
+}
+
+.blob-btn--primary .blob-btn__blob {
+  background: var(--blob-color, var(--lime));
+}
+
+.blob-btn--primary:hover {
+  border-color: var(--lime);
+  box-shadow: 0 6px 28px rgba(215, 255, 63, 0.38);
+  transform: translateY(-2px);
+}
+
+.blob-btn--primary:hover .blob-btn__content {
+  color: var(--blob-hover-text, #070707);
+}
+
+/* Secondary: Crisp Outline with White/Light fill */
+.blob-btn--secondary {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.blob-btn--secondary .blob-btn__content {
+  color: #f4f4f2;
+}
+
+.blob-btn--secondary .blob-btn__blob {
+  background: var(--blob-color, #ffffff);
+}
+
+.blob-btn--secondary:hover {
+  border-color: #ffffff;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.blob-btn--secondary:hover .blob-btn__content {
+  color: var(--blob-hover-text, #070707);
+}
+
+/* Outline: Subtle border with Lime fill */
+.blob-btn--outline {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+}
+
+.blob-btn--outline .blob-btn__content {
+  color: #ffffff;
+}
+
+.blob-btn--outline .blob-btn__blob {
+  background: var(--blob-color, var(--lime));
+}
+
+.blob-btn--outline:hover {
+  border-color: var(--lime);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(215, 255, 63, 0.28);
+}
+
+.blob-btn--outline:hover .blob-btn__content {
+  color: var(--blob-hover-text, #070707);
+}
+
+/* Ghost */
+.blob-btn--ghost {
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.blob-btn--ghost .blob-btn__content {
+  color: #a5a5a5;
+}
+
+.blob-btn--ghost .blob-btn__blob {
+  background: var(--blob-color, rgba(255, 255, 255, 0.12));
+}
+
+.blob-btn--ghost:hover .blob-btn__content {
+  color: var(--blob-hover-text, #ffffff);
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .blob-btn__blobs {
+    filter: none !important;
+  }
+  .blob-btn__blob {
+    display: none !important;
+  }
+  .blob-btn--primary:hover {
+    background: var(--lime) !important;
+  }
+  .blob-btn--secondary:hover {
+    background: #ffffff !important;
+  }
+  .blob-btn:hover {
+    transform: none !important;
+  }
+  .blob-btn:hover .blob-btn__content svg {
+    transform: none !important;
+  }
+}

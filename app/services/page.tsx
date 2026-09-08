@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import BlobButton from "@/components/ui/BlobButton";
 import {
   ArrowUpRight,
   Check,
@@ -145,14 +146,14 @@ export default function ServicesPage() {
             </p>
 
             <div className="actions" style={{ marginTop: 28 }}>
-              <Link className="pill primary" href="/contact">
+              <BlobButton variant="primary" size="lg" href="/contact">
                 <span>Start a Project</span>
                 <ArrowUpRight size={17} />
-              </Link>
-              <Link className="pill" href="/work">
+              </BlobButton>
+              <BlobButton variant="secondary" size="lg" href="/work">
                 <span>See Relevant Work</span>
                 <ArrowUpRight size={17} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>
@@ -201,13 +202,15 @@ export default function ServicesPage() {
                   </ul>
 
                   <div className="service-card-action-cluster">
-                    <Link
+                    <BlobButton
                       href={`/contact?service=${encodeURIComponent(srv.title)}`}
-                      className="pill primary service-action-pill"
+                      variant="primary"
+                      size="md"
+                      className="service-action-pill"
                     >
                       <span>{srv.ctaText}</span>
                       <ArrowUpRight size={16} />
-                    </Link>
+                    </BlobButton>
                     <Link
                       href={`/work?category=${encodeURIComponent(srv.relevantWorkFilter)}`}
                       className="service-sublink"
@@ -299,14 +302,14 @@ export default function ServicesPage() {
               to you with a transparent scope outline and recommendations.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <Link className="pill primary" href="/contact">
+              <BlobButton variant="primary" size="lg" href="/contact">
                 <span>Start a Conversation</span>
                 <ArrowUpRight size={17} />
-              </Link>
-              <Link className="pill" href="/work">
+              </BlobButton>
+              <BlobButton variant="secondary" size="lg" href="/work">
                 <span>Explore Selected Work</span>
                 <ArrowUpRight size={17} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>

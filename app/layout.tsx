@@ -4,6 +4,7 @@ import "./globals.css";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
 import ChainCursor from "@/components/ChainCursor";
+import BlobGooeyFilter from "@/components/ui/BlobGooeyFilter";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.muhammadarslan.com";
 const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-REV2ZTCNLB";
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         )}
         <ChainCursor />
+        <BlobGooeyFilter />
         {children}
         <BackToTop />
         <WhatsAppFloat />

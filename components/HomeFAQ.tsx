@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Plus, Minus, HelpCircle, MessageCircle, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import BlobButton from "@/components/ui/BlobButton";
 import { useFaqs } from "@/lib/useFaqs";
 import { FAQ_CATEGORIES } from "@/lib/faqTypes";
 
@@ -138,10 +139,10 @@ export default function HomeFAQ() {
             <p>I’m always happy to discuss technical constraints, timeline milestones, or budget fit.</p>
           </div>
         </div>
-        <Link href="/contact" className="pill primary faq-bottom-btn">
+        <BlobButton href="/contact" variant="primary" size="md" className="faq-bottom-btn">
           <span>Let&apos;s Have a Chat</span>
           <ArrowUpRight size={14} />
-        </Link>
+        </BlobButton>
       </div>
     </section>
   );

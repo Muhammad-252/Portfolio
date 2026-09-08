@@ -20,6 +20,7 @@ import ProjectGallery from "@/components/ProjectGallery";
 import CaseStudyFloatingCTA from "@/components/CaseStudyFloatingCTA";
 import ProjectCard from "@/components/ProjectCard";
 import Footer from "@/components/Footer";
+import BlobButton from "@/components/ui/BlobButton";
 import { sanitizeJsonLd, sanitizeUrl } from "@/lib/security";
 
 export default function CaseStudyPage() {
@@ -102,14 +103,14 @@ export default function CaseStudyPage() {
           ARSLAN<i>.</i>
         </Link>
         <div className="case-nav-actions">
-          <Link href="/work" className="pill">
+          <BlobButton href="/work" variant="secondary" size="sm">
             <ArrowLeft size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
             <span>All Work</span>
-          </Link>
-          <Link href="/contact" className="pill primary">
+          </BlobButton>
+          <BlobButton href="/contact" variant="primary" size="sm">
             <span>Inquire</span>
             <ArrowUpRight size={14} />
-          </Link>
+          </BlobButton>
         </div>
       </header>
 
@@ -147,26 +148,28 @@ export default function CaseStudyPage() {
 
             <div className="case-hero-actions">
               {hasLiveSite && (
-                <a
-                  className="pill primary"
+                <BlobButton
+                  variant="primary"
+                  size="md"
                   href={safeLive}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <span>Live Project</span>
                   <ArrowUpRight size={15} />
-                </a>
+                </BlobButton>
               )}
               {hasFigma && (
-                <a
-                  className="pill"
+                <BlobButton
+                  variant="secondary"
+                  size="md"
                   href={safeFigma}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <span>Figma Preview</span>
                   <ExternalLink size={14} />
-                </a>
+                </BlobButton>
               )}
             </div>
           </div>
@@ -324,10 +327,10 @@ export default function CaseStudyPage() {
                 <h2>Explore More Projects</h2>
               </div>
               <div className="section-head-side">
-                <Link href="/work" className="pill">
+                <BlobButton href="/work" variant="secondary" size="md">
                   <span>View All Case Studies</span>
                   <ArrowUpRight size={15} />
-                </Link>
+                </BlobButton>
               </div>
             </div>
 
@@ -348,17 +351,18 @@ export default function CaseStudyPage() {
               I’m available for freelance UI/UX design, Webflow development, and full product design contracts.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <Link
-                className="pill primary"
+              <BlobButton
+                variant="primary"
+                size="lg"
                 href={`/contact?ref=${encodeURIComponent(project.title)}`}
               >
                 <span>Let&apos;s Work Together</span>
                 <ArrowUpRight size={16} />
-              </Link>
-              <Link className="pill" href="/work">
+              </BlobButton>
+              <BlobButton variant="secondary" size="lg" href="/work">
                 <span>View More Work</span>
                 <ArrowUpRight size={16} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>

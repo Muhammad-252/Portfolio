@@ -13,6 +13,7 @@ import {
   Linkedin,
   Github,
 } from "lucide-react";
+import BlobButton from "@/components/ui/BlobButton";
 
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,9 +67,9 @@ export default function Nav() {
 
         {/* Desktop CTA & Mobile Toggle Cluster */}
         <div className="nav-actions-cluster">
-          <Link className="pill primary nav-desktop-cta" href="/contact">
+          <BlobButton variant="primary" size="sm" href="/contact" className="nav-desktop-cta">
             Let&apos;s talk ↗
-          </Link>
+          </BlobButton>
 
           {/* Mobile Hamburger Button */}
           <button
@@ -145,25 +146,29 @@ export default function Nav() {
 
               {/* Mobile Quick Action Buttons */}
               <div className="mobile-nav-footer">
-                <Link
+                <BlobButton
                   href="/contact"
-                  className="pill primary mobile-full-cta"
+                  variant="primary"
+                  size="md"
+                  className="mobile-full-cta"
                   onClick={() => setIsOpen(false)}
                 >
                   <Sparkles size={15} />
                   <span>Start a Project</span>
                   <ArrowUpRight size={16} />
-                </Link>
+                </BlobButton>
 
-                <a
+                <BlobButton
                   href="https://wa.me/923015517804"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pill mobile-whatsapp-cta"
+                  variant="secondary"
+                  size="md"
+                  className="mobile-whatsapp-cta"
                 >
                   <MessageCircle size={15} />
                   <span>Chat on WhatsApp</span>
-                </a>
+                </BlobButton>
 
                 {/* Social Quick Links */}
                 <div className="mobile-social-row">

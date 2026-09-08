@@ -19,6 +19,7 @@ import Nav from "@/components/Nav";
 import SocialLinks from "@/components/SocialLinks";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import BlobButton from "@/components/ui/BlobButton";
 import { isValidEmail, rateLimitCheck } from "@/lib/security";
 
 const PROJECT_TYPES = [
@@ -378,10 +379,12 @@ export default function ContactPage() {
                 )}
 
                 <div className="form-action-row-v3">
-                  <button
-                    className="submit-pill-btn"
+                  <BlobButton
+                    variant="primary"
+                    size="md"
                     type="submit"
                     disabled={isSubmitting}
+                    className="submit-pill-btn"
                     style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? "not-allowed" : "pointer" }}
                   >
                     {isSubmitting ? (
@@ -395,7 +398,7 @@ export default function ContactPage() {
                         <Send size={16} />
                       </>
                     )}
-                  </button>
+                  </BlobButton>
                   <div className="direct-guarantee-note">
                     <ShieldCheck size={16} />
                     <span>Direct reply from Muhammad within 24h · Strict NDA</span>

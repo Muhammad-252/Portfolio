@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import BlobButton from "@/components/ui/BlobButton";
 import {
   ArrowUpRight,
   Sparkles,
@@ -118,14 +119,14 @@ export default function AboutPage() {
               </p>
 
               <div className="actions" style={{ marginTop: 28 }}>
-                <Link className="pill primary" href="/contact">
+                <BlobButton variant="primary" size="lg" href="/contact">
                   <span>Start a Project</span>
                   <ArrowUpRight size={17} />
-                </Link>
-                <Link className="pill" href="/work">
+                </BlobButton>
+                <BlobButton variant="secondary" size="lg" href="/work">
                   <span>View Case Studies</span>
                   <ArrowUpRight size={17} />
-                </Link>
+                </BlobButton>
               </div>
             </div>
 
@@ -464,14 +465,14 @@ export default function AboutPage() {
               established company seeking a modern website, I’d love to hear about your goals.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <Link className="pill primary" href="/contact">
+              <BlobButton variant="primary" size="lg" href="/contact">
                 <span>Start a Conversation</span>
                 <ArrowUpRight size={17} />
-              </Link>
-              <Link className="pill" href="/work">
+              </BlobButton>
+              <BlobButton variant="secondary" size="lg" href="/work">
                 <span>Explore Selected Work</span>
                 <ArrowUpRight size={17} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>

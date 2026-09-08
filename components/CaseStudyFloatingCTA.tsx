@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import BlobButton from "@/components/ui/BlobButton";
 
 interface CaseStudyFloatingCTAProps {
   projectTitle?: string;
@@ -81,13 +82,15 @@ export default function CaseStudyFloatingCTA({ projectTitle }: CaseStudyFloating
               </div>
 
               <div className="card-actions-row">
-                <Link
+                <BlobButton
                   href={`/contact${projectTitle ? `?ref=${encodeURIComponent(projectTitle)}` : ""}`}
-                  className="pill primary card-cta-btn"
+                  variant="primary"
+                  size="sm"
+                  className="card-cta-btn"
                 >
                   <span>Let’s Work Together</span>
                   <ArrowUpRight size={14} />
-                </Link>
+                </BlobButton>
               </div>
             </div>
           )}

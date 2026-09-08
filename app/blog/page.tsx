@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
+import BlobButton from "@/components/ui/BlobButton";
 import { useBlogPosts } from "@/lib/useBlogPosts";
 import { BLOG_CATEGORIES } from "@/lib/blogTypes";
 import { useEffect } from "react";
@@ -259,16 +260,16 @@ export default function BlogListingPage() {
                 No blog posts match your current search or category filter. Try clearing
                 the filter to view all articles.
               </p>
-              <button
-                type="button"
-                className="pill primary"
+              <BlobButton
+                variant="primary"
+                size="md"
                 onClick={() => {
                   setSelectedCategory("All");
                   setSearchQuery("");
                 }}
               >
                 Reset Filters
-              </button>
+              </BlobButton>
             </div>
           )}
         </section>
@@ -284,12 +285,12 @@ export default function BlogListingPage() {
               user experiences. Let&apos;s talk about your roadmap.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <Link href="/contact" className="pill primary">
+              <BlobButton href="/contact" variant="primary" size="lg">
                 Start a Conversation ↗
-              </Link>
-              <Link href="/work" className="pill">
+              </BlobButton>
+              <BlobButton href="/work" variant="secondary" size="lg">
                 Explore Selected Work
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>

@@ -17,6 +17,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ProjectCard from "@/components/ProjectCard";
 import CustomFilterDropdown, { DropdownOption } from "@/components/CustomFilterDropdown";
+import BlobButton from "@/components/ui/BlobButton";
 import { usePortfolioProjects } from "@/lib/usePortfolioProjects";
 import { useIndustries } from "@/lib/useIndustries";
 import { DEFAULT_MAIN_CATEGORIES, PLATFORM_OPTIONS } from "@/lib/categories";
@@ -343,10 +344,10 @@ export default function WorkPage() {
               <strong>{industry !== "All" ? industry : "any industry"}</strong> on{" "}
               <strong>{platform !== "All" ? platform : "any platform"}</strong>.
             </p>
-            <button type="button" className="pill primary" onClick={resetFilters}>
+            <BlobButton variant="primary" size="md" onClick={resetFilters}>
               <RotateCcw size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
               Reset all filters
-            </button>
+            </BlobButton>
           </motion.div>
         )}
       </main>

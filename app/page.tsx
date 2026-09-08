@@ -3,6 +3,7 @@ import Nav from "@/components/Nav";
 import LiveProjectGrid from "@/components/LiveProjectGrid";
 import HomeFAQ from "@/components/HomeFAQ";
 import Footer from "@/components/Footer";
+import BlobButton from "@/components/ui/BlobButton";
 import { sanitizeJsonLd } from "@/lib/security";
 import {
   ArrowUpRight,
@@ -74,14 +75,14 @@ export default function Home() {
               </p>
 
               <div className="hero-cta-group">
-                <Link className="hero-cta-btn-primary" href="#work">
+                <BlobButton variant="primary" size="lg" href="#work">
                   <span>Explore Selected Work</span>
                   <ArrowUpRight size={17} />
-                </Link>
-                <Link className="hero-cta-btn-secondary" href="/contact">
+                </BlobButton>
+                <BlobButton variant="secondary" size="lg" href="/contact">
                   <span>Start a Project</span>
                   <ArrowUpRight size={17} />
-                </Link>
+                </BlobButton>
               </div>
 
               <div className="hero-trust-bar">
@@ -184,10 +185,10 @@ export default function Home() {
                 I&apos;ve designed and built for different industries and
                 business goals.
               </p>
-              <Link className="pill" href="/work">
+              <BlobButton variant="secondary" size="md" href="/work">
                 <span>View all work</span>
                 <ArrowUpRight size={16} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
           <LiveProjectGrid limit={3} />
@@ -218,10 +219,10 @@ export default function Home() {
                 experiences.
               </p>
               <div style={{ marginTop: 28 }}>
-                <Link className="pill" href="/about">
+                <BlobButton variant="secondary" size="md" href="/about">
                   <span>More About Me &amp; Philosophy</span>
                   <ArrowUpRight size={16} />
-                </Link>
+                </BlobButton>
               </div>
             </div>
           </div>
@@ -258,10 +259,10 @@ export default function Home() {
                 Comprehensive design and development capabilities designed to take
                 your product from initial ambiguity to production-ready launch.
               </p>
-              <Link className="pill" href="/services">
+              <BlobButton variant="secondary" size="md" href="/services">
                 <span>Explore Services</span>
                 <ArrowUpRight size={16} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
 
@@ -509,14 +510,14 @@ export default function Home() {
               Whether you need an end-to-end product design, a high-converting Webflow build, or a custom WordPress platform, let&apos;s discuss your roadmap.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <Link className="pill primary" href="/contact">
+              <BlobButton variant="primary" size="lg" href="/contact">
                 <span>Start a Project</span>
                 <ArrowUpRight size={17} />
-              </Link>
-              <Link className="pill" href="/work">
+              </BlobButton>
+              <BlobButton variant="secondary" size="lg" href="/work">
                 <span>Explore All Work</span>
                 <ArrowUpRight size={17} />
-              </Link>
+              </BlobButton>
             </div>
           </div>
         </section>
