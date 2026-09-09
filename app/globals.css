@@ -9595,7 +9595,8 @@ a.pill:hover svg {
   transition: opacity 0.2s ease-out;
 }
 
-@media (max-width: 768px), (pointer: coarse) {
+@media (max-width: 768px),
+(pointer: coarse) {
   .chain-cursor-container {
     display: none !important;
   }
@@ -9721,8 +9722,8 @@ html.lenis body {
   isolation: isolate;
   background: transparent;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease,
-              box-shadow 0.25s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
   vertical-align: middle;
 }
 
@@ -9820,16 +9821,46 @@ html.lenis body {
 }
 
 /* Forward stagger delays on hover (left to right) */
-.blob-btn:hover .blob-btn__blob:nth-child(1) { left: -5%; transition-delay: 0s; }
-.blob-btn:hover .blob-btn__blob:nth-child(2) { left: 24%; transition-delay: 0.05s; }
-.blob-btn:hover .blob-btn__blob:nth-child(3) { left: 52%; transition-delay: 0.1s; }
-.blob-btn:hover .blob-btn__blob:nth-child(4) { left: 80%; transition-delay: 0.15s; }
+.blob-btn:hover .blob-btn__blob:nth-child(1) {
+  left: -5%;
+  transition-delay: 0s;
+}
+
+.blob-btn:hover .blob-btn__blob:nth-child(2) {
+  left: 24%;
+  transition-delay: 0.05s;
+}
+
+.blob-btn:hover .blob-btn__blob:nth-child(3) {
+  left: 52%;
+  transition-delay: 0.1s;
+}
+
+.blob-btn:hover .blob-btn__blob:nth-child(4) {
+  left: 80%;
+  transition-delay: 0.15s;
+}
 
 /* Reverse stagger delays on mouse leave (right to left) */
-.blob-btn .blob-btn__blob:nth-child(1) { left: -5%; transition-delay: 0.15s; }
-.blob-btn .blob-btn__blob:nth-child(2) { left: 24%; transition-delay: 0.1s; }
-.blob-btn .blob-btn__blob:nth-child(3) { left: 52%; transition-delay: 0.05s; }
-.blob-btn .blob-btn__blob:nth-child(4) { left: 80%; transition-delay: 0s; }
+.blob-btn .blob-btn__blob:nth-child(1) {
+  left: -5%;
+  transition-delay: 0.15s;
+}
+
+.blob-btn .blob-btn__blob:nth-child(2) {
+  left: 24%;
+  transition-delay: 0.1s;
+}
+
+.blob-btn .blob-btn__blob:nth-child(3) {
+  left: 52%;
+  transition-delay: 0.05s;
+}
+
+.blob-btn .blob-btn__blob:nth-child(4) {
+  left: 80%;
+  transition-delay: 0s;
+}
 
 /* Variants */
 /* Primary: Luxury Lime glow & fill */
@@ -9928,18 +9959,23 @@ html.lenis body {
   .blob-btn__blobs {
     filter: none !important;
   }
+
   .blob-btn__blob {
     display: none !important;
   }
+
   .blob-btn--primary:hover {
     background: var(--lime) !important;
   }
+
   .blob-btn--secondary:hover {
     background: #ffffff !important;
   }
+
   .blob-btn:hover {
     transform: none !important;
   }
+
   .blob-btn:hover .blob-btn__content svg {
     transform: none !important;
   }
