@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { DM_Sans, Manrope } from "next/font/google";
 import "./globals.css";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
 import ChainCursor from "@/components/ChainCursor";
 import BlobGooeyFilter from "@/components/ui/BlobGooeyFilter";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.muhammadarslan.com";
 const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-REV2ZTCNLB";
@@ -81,22 +96,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${dmSans.variable} ${manrope.variable}`}>
       <head>
+        <link rel="preconnect" href="https://b1c02ba6543bdeaac8e9e68ff251b1fe.cdn.bubble.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body suppressHydrationWarning>
+      <body className={dmSans.className} suppressHydrationWarning>
         {gaId && (
           <>
             <Script
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
             />
             <Script
               id="google-analytics"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];

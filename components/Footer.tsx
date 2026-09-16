@@ -50,7 +50,18 @@ export default function Footer() {
       <div className="footer-bottom-bar">
         <span>© {new Date().getFullYear()} Muhammad Arslan. All rights reserved.</span>
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-          <Link href="/privacy" style={{ color: "var(--muted)", textDecoration: "none", fontSize: "12px" }}>
+          <Link
+            href="/privacy"
+            style={{
+              color: "var(--muted)",
+              textDecoration: "none",
+              fontSize: "13px",
+              padding: "10px 8px",
+              display: "inline-flex",
+              alignItems: "center",
+              minHeight: "44px",
+            }}
+          >
             Privacy Policy
           </Link>
           <span>·</span>

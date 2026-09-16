@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Nav from "@/components/Nav";
 import LiveProjectGrid from "@/components/LiveProjectGrid";
 import HomeFAQ from "@/components/HomeFAQ";
@@ -106,12 +107,13 @@ export default function Home() {
               <div className="hero-studio-header">
                 <div className="studio-designer-profile">
                   <div className="studio-avatar-wrap">
-                    <img
+                    <Image
                       className="studio-avatar-img"
                       src="/images/hero-portrait-v3.png"
                       alt="Muhammad Arslan"
                       width={48}
                       height={48}
+                      quality={85}
                     />
                   </div>
                   <div className="studio-designer-info">

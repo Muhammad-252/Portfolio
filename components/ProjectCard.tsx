@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Globe, Layers, Smartphone, Sparkles } from "lucide-react";
 import type { Project } from "@/lib/types";
@@ -48,17 +49,14 @@ export default function ProjectCard({ p }: { p: Project }) {
           aria-label={`View ${p.title} case study`}
         />
         <div className="project-image">
-          <img
+          <Image
             src={coverSrc}
             alt={altText}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="project-cover-img"
+            style={{ objectFit: "cover" }}
             loading="lazy"
-            decoding="async"
-            onError={(e) => {
-              const target = e.currentTarget as HTMLImageElement;
-              if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                target.src = "/images/project-placeholder.svg";
-              }
-            }}
           />
           <div className="project-image-shade" />
           <div className="project-open">
