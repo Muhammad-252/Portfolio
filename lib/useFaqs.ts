@@ -4,11 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import {
   collection,
   doc,
+  getDocs,
   setDoc,
   deleteDoc,
   query,
   orderBy,
-  onSnapshot,
 } from "firebase/firestore";
 import { db, firebaseConfigured } from "@/lib/firebase";
 import type { FAQItem } from "./faqTypes";
@@ -154,35 +154,40 @@ export function useFaqs() {
       return;
     }
 
-    try {
-      const q = query(collection(db, "faqs"), orderBy("order", "asc"));
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const fetched = snapshot.docs.map((d) => ({
-              ...d.data(),
-              id: d.id,
-            })) as FAQItem[];
-            setFaqs(fetched);
-            if (typeof window !== "undefined") {
-              localStorage.setItem(LOCAL_STORAGE_FAQS_KEY, JSON.stringify(fetched));
-            }
+    let isMounted = true;
+
+    async function fetchFaqs() {
+      try {
+        const q = query(collection(db, "faqs"), orderBy("order", "asc"));
+        const snapshot = await getDocs(q);
+        if (!isMounted) return;
+
+        if (!snapshot.empty) {
+          const fetched = snapshot.docs.map((d) => ({
+            ...d.data(),
+            id: d.id,
+          })) as FAQItem[];
+          setFaqs(fetched);
+          if (typeof window !== "undefined") {
+            localStorage.setItem(LOCAL_STORAGE_FAQS_KEY, JSON.stringify(fetched));
           }
-          setLoading(false);
-        },
-        (err) => {
-          if ((err as any)?.code !== "permission-denied") {
-            console.warn("Firestore faqs listener error, using local data", err);
-          }
+        }
+      } catch (err: any) {
+        if ((err as any)?.code !== "permission-denied") {
+          console.warn("Firestore faqs fetch notice, using local data", err);
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false);
         }
-      );
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn("Failed to subscribe to faqs collection", e);
-      setLoading(false);
+      }
     }
+
+    fetchFaqs();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const persistFaqs = useCallback(async (updated: FAQItem[]) => {

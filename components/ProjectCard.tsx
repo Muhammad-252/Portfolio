@@ -47,7 +47,9 @@ export default function ProjectCard({ p }: { p: Project }) {
           href={"/work/" + p.slug}
           className="project-card-overlay-link"
           aria-label={`View ${p.title} case study`}
-        />
+        >
+          <span className="sr-only">View {p.title} case study</span>
+        </Link>
         <div className="project-image">
           <Image
             src={coverSrc}
@@ -85,22 +87,21 @@ export default function ProjectCard({ p }: { p: Project }) {
             <span className="project-year">{p.year}</span>
           </div>
           <h3>
-            <Link href={"/work/" + p.slug} className="project-title-link">
+            <span className="project-title-link">
               {p.title}
-            </Link>
+            </span>
           </h3>
           <p>{p.description}</p>
           <div className="project-bottom">
-            <Link
-              href={"/work/" + p.slug}
+            <span
               className="project-bottom-link"
-              aria-label={`Explore ${p.title} case study`}
+              aria-hidden="true"
             >
               <span>Explore case study</span>
               <span className="bottom-arrow-wrap">
                 <ArrowUpRight size={16} />
               </span>
-            </Link>
+            </span>
           </div>
         </div>
       </div>

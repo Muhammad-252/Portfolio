@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db, firebaseConfigured } from "@/lib/firebase";
 import type { Project } from "@/lib/types";
 
@@ -402,36 +402,40 @@ export function usePortfolioProjects() {
       return;
     }
 
-    try {
-      const unsubscribe = onSnapshot(
-        collection(db, "projects"),
-        (snapshot) => {
-          if (snapshot.empty) {
-            setProjects(SAMPLE_PROJECTS);
-            return;
-          }
+    let isMounted = true;
 
-          const saved = snapshot.docs
-            .map((item) => tidyProject(item.data() as Partial<Project>, item.id))
-            .filter((project) => project.published)
-            .sort((a, b) => a.order - b.order);
+    async function fetchProjects() {
+      try {
+        const snapshot = await getDocs(collection(db, "projects"));
+        if (!isMounted) return;
 
-          setProjects(saved.length > 0 ? saved : SAMPLE_PROJECTS);
-        },
-        (error) => {
-          console.error(
-            "Error fetching projects from Firestore, fallback to sample projects:",
-            error
-          );
+        if (snapshot.empty) {
+          setProjects(SAMPLE_PROJECTS);
+          return;
+        }
+
+        const saved = snapshot.docs
+          .map((item) => tidyProject(item.data() as Partial<Project>, item.id))
+          .filter((project) => project.published)
+          .sort((a, b) => a.order - b.order);
+
+        setProjects(saved.length > 0 ? saved : SAMPLE_PROJECTS);
+      } catch (error) {
+        console.warn(
+          "Notice fetching projects from Firestore, fallback to sample projects:",
+          error
+        );
+        if (isMounted) {
           setProjects(SAMPLE_PROJECTS);
         }
-      );
-
-      return () => unsubscribe();
-    } catch (e) {
-      console.error("Firestore snapshot setup failed:", e);
-      setProjects(SAMPLE_PROJECTS);
+      }
     }
+
+    fetchProjects();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return projects;

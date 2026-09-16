@@ -8,6 +8,30 @@ const configured = Boolean(config.apiKey && config.authDomain && config.projectI
 const app = configured ? (getApps().length ? getApps()[0] : initializeApp(config)) : null;
 
 export const firebaseConfigured = configured;
-export const auth: any = app ? getAuth(app) : null;
+
+let _auth: any = null;
+export const getFirebaseAuth = () => {
+  if (typeof window === "undefined") return null;
+  if (!_auth && app) {
+    _auth = getAuth(app);
+  }
+  return _auth;
+};
+
+export const auth: any =
+  typeof window !== "undefined"
+    ? new Proxy(
+        {},
+        {
+          get(_target, prop) {
+            const instance = getFirebaseAuth();
+            if (!instance) return null;
+            const val = (instance as any)[prop];
+            return typeof val === "function" ? val.bind(instance) : val;
+          },
+        }
+      )
+    : null;
+
 export const db: any = app ? getFirestore(app) : null;
 export const storage: any = app ? getStorage(app) : null;

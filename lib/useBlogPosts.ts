@@ -161,43 +161,47 @@ export function useBlogPosts() {
       return;
     }
 
-    try {
-      const q = query(collection(db, "posts"), orderBy("order", "asc"));
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const fetchedPosts: BlogPost[] = [];
-            snapshot.forEach((docSnap) => {
-              fetchedPosts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
-            });
-            setPosts(fetchedPosts);
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem(
-                  LOCAL_STORAGE_BLOG_KEY,
-                  JSON.stringify(fetchedPosts)
-                );
-              } catch (e) {
-                console.warn("Could not save blog posts to localStorage", e);
-              }
+    let isMounted = true;
+
+    async function fetchPosts() {
+      try {
+        const q = query(collection(db, "posts"), orderBy("order", "asc"));
+        const snapshot = await getDocs(q);
+        if (!isMounted) return;
+
+        if (!snapshot.empty) {
+          const fetchedPosts: BlogPost[] = [];
+          snapshot.forEach((docSnap) => {
+            fetchedPosts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
+          });
+          setPosts(fetchedPosts);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem(
+                LOCAL_STORAGE_BLOG_KEY,
+                JSON.stringify(fetchedPosts)
+              );
+            } catch (e) {
+              console.warn("Could not save blog posts to localStorage", e);
             }
           }
-          setLoading(false);
-        },
-        (error) => {
-          if (error.code !== "permission-denied") {
-            console.warn("Firestore posts listener error:", error.message);
-          }
+        }
+      } catch (error: any) {
+        if (error?.code !== "permission-denied") {
+          console.warn("Firestore posts fetch notice:", error?.message);
+        }
+      } finally {
+        if (isMounted) {
           setLoading(false);
         }
-      );
-
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn("Error setting up Firestore posts listener", e);
-      setLoading(false);
+      }
     }
+
+    fetchPosts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const persistPosts = useCallback(async (newPosts: BlogPost[]) => {
