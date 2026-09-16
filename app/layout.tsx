@@ -12,11 +12,11 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID || "G-REV2ZTCNLB";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    default: "Muhammad Arslan | UI/UX Designer & Web Developer",
     template: "%s | Muhammad Arslan",
   },
   description:
-    "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+    "UI/UX designer and Webflow developer creating high-impact websites and digital products that convert for startups and ambitious brands.",
   keywords: [
     "UI/UX Designer",
     "Webflow Developer",
@@ -32,14 +32,29 @@ export const metadata: Metadata = {
   authors: [{ name: "Muhammad Arslan", url: siteUrl }],
   creator: "Muhammad Arslan",
   publisher: "Muhammad Arslan",
+  alternates: {
+    canonical: siteUrl,
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico"],
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
     siteName: "Muhammad Arslan Portfolio",
-    title: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    title: "Muhammad Arslan | UI/UX Designer & Web Developer",
     description:
-      "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+      "UI/UX designer and Webflow developer creating high-impact websites and digital products that convert for startups and ambitious brands.",
     images: [
       {
         url: "/og-image.png",
@@ -51,9 +66,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Muhammad Arslan | UI/UX Designer, Webflow & WordPress Developer",
+    title: "Muhammad Arslan | UI/UX Designer & Web Developer",
     description:
-      "Muhammad Arslan is a UI/UX designer and Webflow & WordPress developer creating user-focused websites, web apps and digital products for startups and businesses.",
+      "UI/UX designer and Webflow developer creating high-impact websites and digital products that convert for startups and ambitious brands.",
     images: ["/og-image.png"],
   },
   verification: {
@@ -67,6 +82,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body suppressHydrationWarning>
         {gaId && (
           <>

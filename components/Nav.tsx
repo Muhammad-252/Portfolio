@@ -67,7 +67,7 @@ export default function Nav() {
 
         {/* Desktop CTA & Mobile Toggle Cluster */}
         <div className="nav-actions-cluster">
-          <BlobButton variant="primary" size="sm" href="/contact" className="nav-desktop-cta">
+          <BlobButton variant="primary" size="sm" href="/contact" className="nav-desktop-cta" aria-label="Start a project consultation">
             Let&apos;s talk ↗
           </BlobButton>
 
@@ -151,10 +151,11 @@ export default function Nav() {
                   variant="primary"
                   size="md"
                   className="mobile-full-cta"
+                  aria-label="Start a new project with Muhammad Arslan"
                   onClick={() => setIsOpen(false)}
                 >
                   <Sparkles size={15} />
-                  <span>Start a Project</span>
+                  <span>Start New Project</span>
                   <ArrowUpRight size={16} />
                 </BlobButton>
 

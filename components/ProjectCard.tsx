@@ -41,7 +41,12 @@ export default function ProjectCard({ p }: { p: Project }) {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="project-motion-wrap"
     >
-      <Link href={"/work/" + p.slug} className="project">
+      <div className="project">
+        <Link
+          href={"/work/" + p.slug}
+          className="project-card-overlay-link"
+          aria-label={`View ${p.title} case study`}
+        />
         <div className="project-image">
           <img
             src={coverSrc}
@@ -81,16 +86,26 @@ export default function ProjectCard({ p }: { p: Project }) {
             </div>
             <span className="project-year">{p.year}</span>
           </div>
-          <h3>{p.title}</h3>
+          <h3>
+            <Link href={"/work/" + p.slug} className="project-title-link">
+              {p.title}
+            </Link>
+          </h3>
           <p>{p.description}</p>
           <div className="project-bottom">
-            <span>Explore case study</span>
-            <span className="bottom-arrow-wrap">
-              <ArrowUpRight size={16} />
-            </span>
+            <Link
+              href={"/work/" + p.slug}
+              className="project-bottom-link"
+              aria-label={`Explore ${p.title} case study`}
+            >
+              <span>Explore case study</span>
+              <span className="bottom-arrow-wrap">
+                <ArrowUpRight size={16} />
+              </span>
+            </Link>
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

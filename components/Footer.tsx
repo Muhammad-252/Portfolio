@@ -24,12 +24,12 @@ export default function Footer() {
         <div className="footer-links-column">
           <span className="footer-col-title">Navigation</span>
           <nav className="footer-nav-list" aria-label="Footer navigation">
-            <Link href="/">Home</Link>
-            <Link href="/work">Work</Link>
-            <Link href="/services">Services</Link>
-            <Link href="/about">About</Link>
-            <Link href="/blog">Blog</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/" aria-label="Return to Homepage">Home</Link>
+            <Link href="/work" aria-label="Browse Portfolio Case Studies">Portfolio Work</Link>
+            <Link href="/services" aria-label="Explore UI/UX and Development Services">Services &amp; Pricing</Link>
+            <Link href="/about" aria-label="Learn more about Muhammad Arslan">About Experience</Link>
+            <Link href="/blog" aria-label="Read Articles and Design Insights">Articles &amp; Blog</Link>
+            <Link href="/contact" aria-label="Contact Muhammad Arslan directly">Get in Touch</Link>
           </nav>
         </div>
 

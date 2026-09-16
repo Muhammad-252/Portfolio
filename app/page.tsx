@@ -69,17 +69,15 @@ export default function Home() {
               </h1>
 
               <p className="hero-desc-v3">
-                Senior UI/UX Designer and Webflow &amp; WordPress Developer. I partner with founders,
-                product teams, and ambitious brands to craft intuitive digital experiences and high-performance
-                websites that drive real business growth.
+                Senior UI/UX Designer and Webflow &amp; WordPress Developer. I specialize in designing high-impact digital products and intuitive websites that convert visitors into customers, partnering with founders, product teams, and ambitious brands to drive real business growth.
               </p>
 
               <div className="hero-cta-group">
-                <BlobButton variant="primary" size="lg" href="#work">
+                <BlobButton variant="primary" size="lg" href="#work" aria-label="Explore selected portfolio work">
                   <span>Explore Selected Work</span>
                   <ArrowUpRight size={17} />
                 </BlobButton>
-                <BlobButton variant="secondary" size="lg" href="/contact">
+                <BlobButton variant="secondary" size="lg" href="/contact" aria-label="Start a project consultation">
                   <span>Start a Project</span>
                   <ArrowUpRight size={17} />
                 </BlobButton>
@@ -117,7 +115,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="studio-designer-info">
-                    <h4>Muhammad Arslan</h4>
+                    <div className="studio-designer-name">Muhammad Arslan</div>
                     <span>UI/UX &amp; Webflow Specialist</span>
                   </div>
                 </div>
@@ -185,7 +183,7 @@ export default function Home() {
                 I&apos;ve designed and built for different industries and
                 business goals.
               </p>
-              <BlobButton variant="secondary" size="md" href="/work">
+              <BlobButton variant="secondary" size="md" href="/work" aria-label="Browse complete showcase of projects">
                 <span>View all work</span>
                 <ArrowUpRight size={16} />
               </BlobButton>
@@ -394,7 +392,7 @@ export default function Home() {
                   <span className="process-number">{step.num}</span>
                   <div className="process-icon-wrap">{step.icon}</div>
                 </div>
-                <h3>{step.title}</h3>
+                <div className="process-card-title">{step.title}</div>
                 <p>{step.desc}</p>
               </div>
             ))}
@@ -423,11 +421,10 @@ export default function Home() {
               <div className="pillar-icon-box">
                 <Users size={20} />
               </div>
-              <h3>User-Focused</h3>
+              <div className="value-pillar-title">User-Focused</div>
               <p>
                 Every screen is grounded in user intent and cognitive psychology.
-                I minimize cognitive load so your users achieve their goals
-                intuitively.
+                I minimize cognitive load to create websites that convert and retain users intuitively.
               </p>
             </div>
 
@@ -435,10 +432,10 @@ export default function Home() {
               <div className="pillar-icon-box">
                 <Code2 size={20} />
               </div>
-              <h3>Design + Development</h3>
+              <div className="value-pillar-title">Design + Development</div>
               <p>
                 With software engineering foundations, I bridge Figma and production
-                code seamlessly. No broken handoffs or unbuildable concepts.
+                code seamlessly to deliver high-impact digital products without broken handoffs.
               </p>
             </div>
 
@@ -446,7 +443,7 @@ export default function Home() {
               <div className="pillar-icon-box">
                 <Compass size={20} />
               </div>
-              <h3>Detail-Oriented</h3>
+              <div className="value-pillar-title">Detail-Oriented</div>
               <p>
                 Meticulous attention to typographic scale, micro-interactions,
                 accessible contrast ratios, and flawless responsiveness across
@@ -458,9 +455,9 @@ export default function Home() {
               <div className="pillar-icon-box">
                 <Target size={20} />
               </div>
-              <h3>Business-Minded</h3>
+              <div className="value-pillar-title">Business-Minded</div>
               <p>
-                Interfaces designed to move commercial metrics—increasing
+                Designing high-impact products to move commercial metrics—increasing
                 sign-ups, reducing churn, driving qualified leads, and
                 differentiating your brand.
               </p>
@@ -474,6 +471,11 @@ export default function Home() {
             <div>
               <div className="kicker">Toolbox</div>
               <h2>Built with the right tools.</h2>
+            </div>
+            <div className="section-head-side">
+              <p>
+                A battle-tested stack of modern design systems, no-code platforms, and web engineering tools utilized to craft fast, scalable, and conversion-focused digital experiences.
+              </p>
             </div>
           </div>
           <div className="tools">
@@ -510,12 +512,12 @@ export default function Home() {
               Whether you need an end-to-end product design, a high-converting Webflow build, or a custom WordPress platform, let&apos;s discuss your roadmap.
             </p>
             <div className="actions" style={{ justifyContent: "center" }}>
-              <BlobButton variant="primary" size="lg" href="/contact">
-                <span>Start a Project</span>
+              <BlobButton variant="primary" size="lg" href="/contact" aria-label="Start your digital project inquiry">
+                <span>Start Your Project</span>
                 <ArrowUpRight size={17} />
               </BlobButton>
-              <BlobButton variant="secondary" size="lg" href="/work">
-                <span>Explore All Work</span>
+              <BlobButton variant="secondary" size="lg" href="/work" aria-label="Browse all portfolio case studies">
+                <span>Browse All Work</span>
                 <ArrowUpRight size={17} />
               </BlobButton>
             </div>

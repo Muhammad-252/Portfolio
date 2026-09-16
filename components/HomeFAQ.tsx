@@ -135,7 +135,7 @@ export default function HomeFAQ() {
             <MessageCircle size={18} />
           </div>
           <div>
-            <h4>Have a specific question not answered here?</h4>
+            <div className="faq-bottom-title">Have a specific question not answered here?</div>
             <p>I’m always happy to discuss technical constraints, timeline milestones, or budget fit.</p>
           </div>
         </div>
