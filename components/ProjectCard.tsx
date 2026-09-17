@@ -50,7 +50,23 @@ export default function ProjectCard({ p }: { p: Project }) {
         >
           <span className="sr-only">View {p.title} case study</span>
         </Link>
-        <div className="project-image">
+        <div className={`project-image ${p.platform === "Mobile App" ? "is-mobile-preview" : "is-browser-preview"}`}>
+          {/* Native Device Mockup Header */}
+          {p.platform === "Mobile App" ? (
+            <div className="card-mockup-header mobile-header">
+              <span className="card-mobile-notch" />
+            </div>
+          ) : (
+            <div className="card-mockup-header browser-header">
+              <div className="card-traffic-lights">
+                <span className="card-dot dot-red" />
+                <span className="card-dot dot-yellow" />
+                <span className="card-dot dot-green" />
+              </div>
+              <span className="card-url-pill">{p.slug}.app</span>
+            </div>
+          )}
+
           <Image
             src={coverSrc}
             alt={altText}

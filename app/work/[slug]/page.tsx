@@ -174,17 +174,59 @@ export default function CaseStudyPage() {
             </div>
           </div>
 
-          <div className="case-cover">
-            <img
-              src={coverUrl}
-              alt={`${project.title} ${project.platform} design showcase cover`}
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                  target.src = "/images/project-placeholder.svg";
-                }
-              }}
-            />
+          <div className="case-cover-mockup-wrap">
+            {project.platform === "Mobile App" ? (
+              <div className="device-mockup-mobile">
+                <div className="mobile-bezel-top">
+                  <span className="mobile-dynamic-island" />
+                  <span className="mobile-camera-lens" />
+                </div>
+                <div className="mobile-screen-content">
+                  <img
+                    src={coverUrl}
+                    alt={`${project.title} ${project.platform} design showcase cover`}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                        target.src = "/images/project-placeholder.svg";
+                      }
+                    }}
+                  />
+                  <div className="device-screen-glare" />
+                </div>
+                <div className="mobile-bezel-bottom">
+                  <span className="mobile-home-bar" />
+                </div>
+              </div>
+            ) : (
+              <div className="device-mockup-browser">
+                <div className="browser-titlebar">
+                  <div className="browser-traffic-lights">
+                    <span className="traffic-dot dot-red" />
+                    <span className="traffic-dot dot-yellow" />
+                    <span className="traffic-dot dot-green" />
+                  </div>
+                  <div className="browser-address-bar">
+                    <span className="browser-lock-icon">🔒</span>
+                    <span className="browser-url">https://{project.slug}.app/dashboard</span>
+                  </div>
+                  <div className="browser-actions-ghost" />
+                </div>
+                <div className="browser-screen-content">
+                  <img
+                    src={coverUrl}
+                    alt={`${project.title} ${project.platform} design showcase cover`}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                        target.src = "/images/project-placeholder.svg";
+                      }
+                    }}
+                  />
+                  <div className="device-screen-glare" />
+                </div>
+              </div>
+            )}
             <div className="case-cover-label">
               <span>{project.industry}</span>
               <strong>{project.year}</strong>
@@ -314,7 +356,12 @@ export default function CaseStudyPage() {
         {/* 11. Project Gallery (Circular 3D Showcase & Modal) */}
         {project.gallery && project.gallery.length > 0 && (
           <section className="case-section case-gallery-section" aria-label="Project Visual Gallery">
-            <ProjectGallery images={project.gallery} />
+            <ProjectGallery
+              images={project.gallery}
+              title={project.title}
+              platform={project.platform}
+              slug={project.slug}
+            />
           </section>
         )}
 

@@ -2214,30 +2214,341 @@ body:before {
   letter-spacing: 0.12em;
 }
 
-.case-cover {
+.case-cover,
+.case-cover-mockup-wrap {
   position: relative;
   margin: 0;
-  border-radius: 24px;
-  border-color: #2d2d2d;
-  aspect-ratio: 1.24;
-  isolation: isolate;
-  background: #151515;
+  width: 100%;
 }
 
-.case-cover:after {
-  content: "";
+/* ==========================================================================
+   DEVICE MOCKUPS SYSTEM (BROWSER & MOBILE FOR WORK, HERO & GALLERY)
+   ========================================================================== */
+
+/* Card Mockup Header (Web & Mobile) */
+.card-mockup-header {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-      transparent 54%,
-      rgba(215, 255, 63, 0.15));
-  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
   pointer-events: none;
 }
 
-.case-cover img {
+.card-mockup-header.browser-header {
+  height: 28px;
+  padding: 0 12px;
+  background: rgba(14, 14, 16, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  justify-content: space-between;
+}
+
+.card-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-dot {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.card-dot.dot-red {
+  background: #ff5f56;
+  box-shadow: 0 0 6px rgba(255, 95, 86, 0.4);
+}
+
+.card-dot.dot-yellow {
+  background: #ffbd2e;
+  box-shadow: 0 0 6px rgba(255, 189, 46, 0.4);
+}
+
+.card-dot.dot-green {
+  background: #27c93f;
+  box-shadow: 0 0 6px rgba(39, 201, 63, 0.4);
+}
+
+.card-url-pill {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  letter-spacing: 0.01em;
+  max-width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-mockup-header.mobile-header {
+  height: 22px;
+  justify-content: center;
+}
+
+.card-mobile-notch {
+  width: 60px;
+  height: 11px;
+  background: #000;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Browser Mockup Frame (MacBook / Safari Dark) */
+.device-mockup-browser {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #111114;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.9),
+              0 0 0 1px rgba(255, 255, 255, 0.05),
+              0 0 40px rgba(215, 255, 63, 0.03);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.browser-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(22, 22, 26, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+}
+
+.browser-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 60px;
+}
+
+.traffic-dot {
+  width: 10.5px;
+  height: 10.5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.traffic-dot.dot-red {
+  background: #ff5f56;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.traffic-dot.dot-yellow {
+  background: #ffbd2e;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.traffic-dot.dot-green {
+  background: #27c93f;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.browser-address-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 5px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a5a5aa;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+}
+
+.browser-lock-icon {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.browser-url {
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-actions-ghost {
+  width: 60px;
+}
+
+.browser-screen-content {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #0d0d10;
+}
+
+.browser-screen-content img {
+  width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* Mobile Device Mockup Frame (iPhone 16 Pro Titanium Bezel) */
+.device-mockup-mobile {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  border-radius: 46px;
+  border: 9px solid #222225;
+  background: #08080a;
+  box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.95),
+              inset 0 0 0 2px rgba(255, 255, 255, 0.15),
+              0 0 0 1px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.mobile-bezel-top {
+  position: relative;
+  height: 34px;
+  background: #08080a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.mobile-dynamic-island {
+  width: 90px;
+  height: 22px;
+  background: #000;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+              0 2px 5px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.mobile-camera-lens {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #1e1b4b, #000);
+  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.mobile-screen-content {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 18.5;
+  overflow: hidden;
+  background: #09090b;
+}
+
+.mobile-screen-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mobile-bezel-bottom {
+  height: 26px;
+  background: #08080a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.mobile-home-bar {
+  width: 120px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
+/* Subtle Realistic Glare Reflection */
+.device-screen-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(125deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 28%,
+      transparent 50%,
+      rgba(215, 255, 63, 0.025) 100%);
+  z-index: 5;
+}
+
+/* Circular Gallery Slide Mockup Screen */
+.circular-card-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.circular-card-screen {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+.circular-card-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Lightbox Frame Overrides */
+.lightbox-browser-frame {
+  max-width: min(1200px, 92vw);
+  max-height: 88vh;
+  margin: 0 auto;
+}
+
+.lightbox-browser-frame .browser-screen-content {
+  aspect-ratio: 16 / 10;
+  max-height: calc(88vh - 48px);
+}
+
+.lightbox-browser-frame .browser-screen-content img {
+  object-fit: contain;
+  background: #0a0a0c;
+}
+
+.lightbox-mobile-frame {
+  max-width: min(440px, 88vw);
+  max-height: 88vh;
+  margin: 0 auto;
+}
+
+.lightbox-mobile-frame .mobile-screen-content {
+  max-height: calc(88vh - 60px);
+}
+
+.lightbox-mobile-frame .mobile-screen-content img {
+  object-fit: contain;
+  background: #000;
 }
 
 .case-cover-label {

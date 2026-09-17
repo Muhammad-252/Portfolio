@@ -14,6 +14,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ProjectGalleryProps {
   images: string[];
+  title?: string;
+  platform?: string;
+  slug?: string;
 }
 
 function normalizeImg(src?: string) {
@@ -22,7 +25,12 @@ function normalizeImg(src?: string) {
   return src;
 }
 
-export default function ProjectGallery({ images }: ProjectGalleryProps) {
+export default function ProjectGallery({
+  images,
+  title,
+  platform,
+  slug,
+}: ProjectGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -202,34 +210,52 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
                   }
                 }}
               >
-                <div className="circular-card-inner">
-                  <img
-                    src={normalizeImg(imgSrc)}
-                    alt={`Project showcase screen ${idx + 1}`}
-                    loading={isCenter ? "eager" : "lazy"}
-                    decoding="async"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                        target.src = "/images/project-placeholder.svg";
-                      }
-                    }}
-                  />
-
-                  {/* Active Card Overlay & Prompt */}
-                  {isCenter && (
-                    <div className="circular-card-active-overlay">
-                      <div className="circular-expand-pill">
-                        <Maximize2 size={13} />
-                        <span>Click to Expand</span>
+                <div className={`circular-card-inner ${platform === "Mobile App" ? "is-mobile-card" : "is-browser-card"}`}>
+                  {platform === "Mobile App" ? (
+                    <div className="card-mockup-header mobile-header">
+                      <span className="card-mobile-notch" />
+                    </div>
+                  ) : (
+                    <div className="card-mockup-header browser-header">
+                      <div className="card-traffic-lights">
+                        <span className="card-dot dot-red" />
+                        <span className="card-dot dot-yellow" />
+                        <span className="card-dot dot-green" />
                       </div>
+                      <span className="card-url-pill">{(slug || "app")}.app/view-{(idx + 1)}</span>
                     </div>
                   )}
 
-                  {/* Side Card subtle click prompt */}
-                  {!isCenter && (
-                    <div className="circular-card-flank-tint" />
-                  )}
+                  <div className="circular-card-screen">
+                    <img
+                      src={normalizeImg(imgSrc)}
+                      alt={`${title || "Project"} showcase screen ${idx + 1}`}
+                      loading={isCenter ? "eager" : "lazy"}
+                      decoding="async"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                          target.src = "/images/project-placeholder.svg";
+                        }
+                      }}
+                    />
+                    <div className="device-screen-glare" />
+
+                    {/* Active Card Overlay & Prompt */}
+                    {isCenter && (
+                      <div className="circular-card-active-overlay">
+                        <div className="circular-expand-pill">
+                          <Maximize2 size={13} />
+                          <span>Click to Expand</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Side Card subtle click prompt */}
+                    {!isCenter && (
+                      <div className="circular-card-flank-tint" />
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -339,7 +365,7 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
               </button>
             )}
 
-            {/* Modal Image */}
+            {/* Modal Image inside Full Mockup */}
             <motion.div
               className="lightbox-image-wrap"
               key={lightboxIndex}
@@ -349,11 +375,48 @@ export default function ProjectGallery({ images }: ProjectGalleryProps) {
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={normalizeImg(images[lightboxIndex])}
-                alt={`Full screen project display ${lightboxIndex + 1}`}
-                className="lightbox-main-img"
-              />
+              {platform === "Mobile App" ? (
+                <div className="device-mockup-mobile lightbox-mobile-frame">
+                  <div className="mobile-bezel-top">
+                    <span className="mobile-dynamic-island" />
+                    <span className="mobile-camera-lens" />
+                  </div>
+                  <div className="mobile-screen-content">
+                    <img
+                      src={normalizeImg(images[lightboxIndex])}
+                      alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
+                      className="lightbox-main-img"
+                    />
+                    <div className="device-screen-glare" />
+                  </div>
+                  <div className="mobile-bezel-bottom">
+                    <span className="mobile-home-bar" />
+                  </div>
+                </div>
+              ) : (
+                <div className="device-mockup-browser lightbox-browser-frame">
+                  <div className="browser-titlebar">
+                    <div className="browser-traffic-lights">
+                      <span className="traffic-dot dot-red" />
+                      <span className="traffic-dot dot-yellow" />
+                      <span className="traffic-dot dot-green" />
+                    </div>
+                    <div className="browser-address-bar">
+                      <span className="browser-lock-icon">🔒</span>
+                      <span className="browser-url">https://{slug || "project"}.app/view-{lightboxIndex + 1}</span>
+                    </div>
+                    <div className="browser-actions-ghost" />
+                  </div>
+                  <div className="browser-screen-content">
+                    <img
+                      src={normalizeImg(images[lightboxIndex])}
+                      alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
+                      className="lightbox-main-img"
+                    />
+                    <div className="device-screen-glare" />
+                  </div>
+                </div>
+              )}
             </motion.div>
 
             {/* Modal Next Arrow */}
