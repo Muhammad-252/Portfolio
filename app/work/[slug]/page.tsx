@@ -21,6 +21,8 @@ import CaseStudyFloatingCTA from "@/components/CaseStudyFloatingCTA";
 import ProjectCard from "@/components/ProjectCard";
 import Footer from "@/components/Footer";
 import BlobButton from "@/components/ui/BlobButton";
+import MacBookMockup from "@/components/MacBookMockup";
+import IPhoneMockup from "@/components/IPhoneMockup";
 import { sanitizeJsonLd, sanitizeUrl } from "@/lib/security";
 
 export default function CaseStudyPage() {
@@ -174,18 +176,18 @@ export default function CaseStudyPage() {
             </div>
           </div>
 
-          <div className="case-cover">
-            <img
-              src={coverUrl}
-              alt={`${project.title} ${project.platform} design showcase cover`}
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                  target.src = "/images/project-placeholder.svg";
-                }
-              }}
-            />
-            <div className="case-cover-sheen" />
+          <div className="case-cover-mockup-wrapper">
+            {project.platform === "Mobile App" ? (
+              <IPhoneMockup
+                src={coverUrl}
+                alt={`${project.title} ${project.platform} design showcase cover`}
+              />
+            ) : (
+              <MacBookMockup
+                src={coverUrl}
+                alt={`${project.title} ${project.platform} design showcase cover`}
+              />
+            )}
             <div className="case-cover-label">
               <span>{project.industry}</span>
               <strong>{project.year}</strong>
