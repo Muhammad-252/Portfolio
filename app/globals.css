@@ -2221,9 +2221,42 @@ body:before {
 .case-cover-mockup-wrapper {
   position: relative;
   width: 100%;
+  border-radius: 26px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #ffffff 0%, #edf1f7 55%, #dfe4ee 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: clamp(36px, 5vw, 68px) clamp(24px, 4vw, 56px);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Work Cards Project Image Stage (MacBook Mockup on Cards) */
+.project-image.project-image-stage {
+  aspect-ratio: 16 / 10.5;
+  background: radial-gradient(ellipse at 50% 35%, #ffffff 0%, #edf1f7 55%, #dfe4ee 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 18px 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.project-image.project-image-stage .project-image-shade {
+  display: none !important;
+}
+
+.card-mockup-fit {
+  width: 100%;
+  max-width: 100%;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project:hover .card-mockup-fit {
+  transform: translateY(-4px) scale(1.02);
 }
 
 /* MacBook Hardware Device */
@@ -2247,10 +2280,10 @@ body:before {
 .macbook-lid {
   position: relative;
   width: 86%;
-  aspect-ratio: 16 / 10.4;
+  aspect-ratio: 16 / 10.2;
   background: #0d0e12;
   border-radius: 16px 16px 2px 2px;
-  padding: 10px 12px 20px 12px;
+  padding: 10px 12px 18px 12px;
   box-shadow: inset 0 0 0 1.5px #4a4b52, 0 0 0 1px #1a1b1f, 0 14px 35px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
@@ -2267,6 +2300,7 @@ body:before {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .macbook-camera-dot {
@@ -2282,6 +2316,7 @@ body:before {
   position: relative;
   width: 100%;
   flex: 1;
+  min-height: 0;
   border-radius: 3px;
   overflow: hidden;
   background: #000;
@@ -2289,9 +2324,13 @@ body:before {
 }
 
 .macbook-screen img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center !important;
   display: block;
 }
 
@@ -2300,7 +2339,7 @@ body:before {
   inset: 0;
   pointer-events: none;
   background: linear-gradient(130deg,
-    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.08) 0%,
     rgba(255, 255, 255, 0.02) 25%,
     transparent 50%,
     rgba(215, 255, 63, 0.02) 100%
@@ -2315,6 +2354,7 @@ body:before {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .macbook-brand-text {
@@ -2339,7 +2379,7 @@ body:before {
   );
   border-radius: 2px 2px 14px 14px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8),
-              0 3px 6px rgba(0, 0, 0, 0.35);
+              0 3px 6px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -2363,11 +2403,11 @@ body:before {
   right: 6%;
   height: 28px;
   background: radial-gradient(ellipse at 50% 30%,
-    rgba(0, 0, 0, 0.85) 0%,
-    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.12) 45%,
     transparent 75%
   );
-  filter: blur(10px);
+  filter: blur(8px);
   pointer-events: none;
   z-index: 1;
 }
@@ -2440,9 +2480,13 @@ body:before {
 }
 
 .iphone-screen img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center !important;
   display: block;
 }
 
@@ -2478,8 +2522,12 @@ body:before {
   bottom: -20px;
   left: 10%;
   right: 10%;
-  height: 24px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.8) 0%, transparent 75%);
+  height: 26px;
+  background: radial-gradient(ellipse at 50% 30%,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.12) 45%,
+    transparent 75%
+  );
   filter: blur(8px);
   pointer-events: none;
 }

@@ -30,6 +30,7 @@ export default function MacBookMockup({
             <img
               src={src}
               alt={alt}
+              style={{ objectPosition: "top center", objectFit: "cover" }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 if (target.src && !target.src.endsWith(fallbackSrc)) {

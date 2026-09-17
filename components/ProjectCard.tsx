@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Globe, Layers, Smartphone, Sparkles } from "lucide-react";
+import MacBookMockup from "@/components/MacBookMockup";
+import IPhoneMockup from "@/components/IPhoneMockup";
 import type { Project } from "@/lib/types";
 
 function getPlatformIcon(platform?: string) {
@@ -50,17 +51,20 @@ export default function ProjectCard({ p }: { p: Project }) {
         >
           <span className="sr-only">View {p.title} case study</span>
         </Link>
-        <div className="project-image">
-
-          <Image
-            src={coverSrc}
-            alt={altText}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="project-cover-img"
-            style={{ objectFit: "cover" }}
-            loading="lazy"
-          />
+        <div className="project-image project-image-stage">
+          {p.platform === "Mobile App" ? (
+            <IPhoneMockup
+              src={coverSrc}
+              alt={altText}
+              className="card-mockup-fit"
+            />
+          ) : (
+            <MacBookMockup
+              src={coverSrc}
+              alt={altText}
+              className="card-mockup-fit"
+            />
+          )}
           <div className="project-image-shade" />
           <div className="project-open">
             <span>View case study</span>
