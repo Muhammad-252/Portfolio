@@ -57,13 +57,16 @@ export default function ProjectCard({ p }: { p: Project }) {
               <span className="card-mobile-notch" />
             </div>
           ) : (
-            <div className="card-mockup-header browser-header">
-              <div className="card-traffic-lights">
-                <span className="card-dot dot-red" />
-                <span className="card-dot dot-yellow" />
-                <span className="card-dot dot-green" />
+            <div className="card-mockup-header linear-header">
+              <div className="linear-header-left">
+                <span className="linear-status-dot" />
+                <span className="linear-breadcrumb-pill">
+                  {p.slug} <span className="slash">/</span> ui
+                </span>
               </div>
-              <span className="card-url-pill">{p.slug}.app</span>
+              <div className="linear-header-right">
+                <span className="linear-cmd-pill">⌘K</span>
+              </div>
             </div>
           )}
 

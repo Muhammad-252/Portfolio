@@ -210,19 +210,22 @@ export default function ProjectGallery({
                   }
                 }}
               >
-                <div className={`circular-card-inner ${platform === "Mobile App" ? "is-mobile-card" : "is-browser-card"}`}>
+                <div className={`circular-card-inner ${platform === "Mobile App" ? "is-mobile-card" : "is-linear-card"}`}>
                   {platform === "Mobile App" ? (
                     <div className="card-mockup-header mobile-header">
                       <span className="card-mobile-notch" />
                     </div>
                   ) : (
-                    <div className="card-mockup-header browser-header">
-                      <div className="card-traffic-lights">
-                        <span className="card-dot dot-red" />
-                        <span className="card-dot dot-yellow" />
-                        <span className="card-dot dot-green" />
+                    <div className="card-mockup-header linear-header">
+                      <div className="linear-header-left">
+                        <span className="linear-status-dot" />
+                        <span className="linear-breadcrumb-pill">
+                          {(slug || "app")} <span className="slash">/</span> screen-{String(idx + 1).padStart(2, "0")}
+                        </span>
                       </div>
-                      <span className="card-url-pill">{(slug || "app")}.app/view-{(idx + 1)}</span>
+                      <div className="linear-header-right">
+                        <span className="linear-cmd-pill">⌘K</span>
+                      </div>
                     </div>
                   )}
 
@@ -394,26 +397,41 @@ export default function ProjectGallery({
                   </div>
                 </div>
               ) : (
-                <div className="device-mockup-browser lightbox-browser-frame">
-                  <div className="browser-titlebar">
-                    <div className="browser-traffic-lights">
-                      <span className="traffic-dot dot-red" />
-                      <span className="traffic-dot dot-yellow" />
-                      <span className="traffic-dot dot-green" />
+                <div className="device-shell-linear lightbox-linear-frame">
+                  <div className="linear-laser-line" />
+                  <div className="linear-shell-topbar">
+                    <div className="linear-topbar-left">
+                      <span className="linear-pulse-dot" />
+                      <div className="linear-breadcrumbs">
+                        <span className="breadcrumb-root">{slug || "project"}</span>
+                        <span className="breadcrumb-separator">/</span>
+                        <span className="breadcrumb-sub">screens</span>
+                        <span className="breadcrumb-separator">/</span>
+                        <span className="breadcrumb-active">
+                          {String(lightboxIndex + 1).padStart(2, "0")}
+                        </span>
+                      </div>
                     </div>
-                    <div className="browser-address-bar">
-                      <span className="browser-lock-icon">🔒</span>
-                      <span className="browser-url">https://{slug || "project"}.app/view-{lightboxIndex + 1}</span>
+
+                    <div className="linear-topbar-center">
+                      <div className="linear-command-pill">
+                        <span className="cmd-symbol">⌘</span>
+                        <span className="cmd-key">K Command Palette</span>
+                      </div>
                     </div>
-                    <div className="browser-actions-ghost" />
+
+                    <div className="linear-topbar-right">
+                      <span className="linear-live-indicator">FULL VIEW</span>
+                    </div>
                   </div>
-                  <div className="browser-screen-content">
+
+                  <div className="linear-shell-viewport">
                     <img
                       src={normalizeImg(images[lightboxIndex])}
                       alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
                       className="lightbox-main-img"
                     />
-                    <div className="device-screen-glare" />
+                    <div className="linear-viewport-sheen" />
                   </div>
                 </div>
               )}

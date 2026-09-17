@@ -199,20 +199,41 @@ export default function CaseStudyPage() {
                 </div>
               </div>
             ) : (
-              <div className="device-mockup-browser">
-                <div className="browser-titlebar">
-                  <div className="browser-traffic-lights">
-                    <span className="traffic-dot dot-red" />
-                    <span className="traffic-dot dot-yellow" />
-                    <span className="traffic-dot dot-green" />
+              <div className="device-shell-linear">
+                {/* Futuristic neon laser accent line */}
+                <div className="linear-laser-line" />
+
+                {/* Linear/Raycast style top bar */}
+                <div className="linear-shell-topbar">
+                  <div className="linear-topbar-left">
+                    <span className="linear-pulse-dot" />
+                    <div className="linear-breadcrumbs">
+                      <span className="breadcrumb-root">{project.slug}</span>
+                      <span className="breadcrumb-separator">/</span>
+                      <span className="breadcrumb-sub">workspace</span>
+                      <span className="breadcrumb-separator">/</span>
+                      <span className="breadcrumb-active">v{project.year || "2.4"}</span>
+                    </div>
                   </div>
-                  <div className="browser-address-bar">
-                    <span className="browser-lock-icon">🔒</span>
-                    <span className="browser-url">https://{project.slug}.app/dashboard</span>
+
+                  <div className="linear-topbar-center">
+                    <div className="linear-tab-group">
+                      <span className="linear-tab is-active">Overview</span>
+                      <span className="linear-tab">Flows</span>
+                      <span className="linear-tab">Systems</span>
+                    </div>
                   </div>
-                  <div className="browser-actions-ghost" />
+
+                  <div className="linear-topbar-right">
+                    <div className="linear-command-pill">
+                      <span className="cmd-symbol">⌘</span>
+                      <span className="cmd-key">K</span>
+                    </div>
+                    <span className="linear-live-indicator">LIVE</span>
+                  </div>
                 </div>
-                <div className="browser-screen-content">
+
+                <div className="linear-shell-viewport">
                   <img
                     src={coverUrl}
                     alt={`${project.title} ${project.platform} design showcase cover`}
@@ -223,7 +244,8 @@ export default function CaseStudyPage() {
                       }
                     }}
                   />
-                  <div className="device-screen-glare" />
+                  <div className="linear-viewport-sheen" />
+                  <div className="linear-viewport-vignette" />
                 </div>
               </div>
             )}
