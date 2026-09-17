@@ -2214,433 +2214,51 @@ body:before {
   letter-spacing: 0.12em;
 }
 
-.case-cover,
-.case-cover-mockup-wrap {
+/* ==========================================================================
+   PURE FRAMELESS SHOWCASE SYSTEM (AWWWARDS / CUBERTO STYLE)
+   ========================================================================== */
+
+.case-cover {
   position: relative;
   margin: 0;
   width: 100%;
-}
-
-/* ==========================================================================
-   FUTURISTIC APP SHELL SYSTEM (LINEAR / RAYCAST STYLE)
-   ========================================================================== */
-
-/* Keyframe for glowing pulse dot */
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.75;
-    box-shadow: 0 0 6px rgba(215, 255, 63, 0.4);
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 12px rgba(215, 255, 63, 0.85);
-  }
-}
-
-/* Card Mockup Header (Linear / Raycast Style) */
-.card-mockup-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-}
-
-.card-mockup-header.linear-header {
-  height: 27px;
-  padding: 0 12px;
-  background: rgba(12, 13, 16, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(215, 255, 63, 0.25);
-  justify-content: space-between;
-}
-
-.linear-header-left {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.linear-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--lime, #d7ff3f);
-  box-shadow: 0 0 8px rgba(215, 255, 63, 0.6);
-  display: inline-block;
-}
-
-.linear-breadcrumb-pill {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 9.5px;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+  aspect-ratio: 16 / 10;
+  border-radius: 24px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 170px;
-}
-
-.linear-breadcrumb-pill .slash {
-  color: var(--lime, #d7ff3f);
-  margin: 0 2px;
-  opacity: 0.8;
-}
-
-.linear-cmd-pill {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 8.5px;
-  color: rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.06);
-  padding: 2px 5px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.card-mockup-header.mobile-header {
-  height: 22px;
-  justify-content: center;
-}
-
-.card-mobile-notch {
-  width: 60px;
-  height: 11px;
-  background: #000;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-}
-
-/* ==========================================================================
-   FUTURISTIC APP SHELL (CASE STUDY HERO & SHOWCASE)
-   ========================================================================== */
-
-.device-shell-linear {
-  position: relative;
-  width: 100%;
-  border-radius: 18px;
-  overflow: hidden;
-  background: #0c0d11;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.95),
-              0 0 0 1px rgba(255, 255, 255, 0.04),
-              0 0 45px rgba(215, 255, 63, 0.035);
+  background: #0f1013;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.95),
+              0 0 50px rgba(215, 255, 63, 0.035);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* Futuristic Neon Laser Glow line across top */
-.linear-laser-line {
-  height: 2px;
-  width: 100%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(215, 255, 63, 0.75) 30%,
-    rgba(140, 255, 175, 0.85) 60%,
-    transparent 100%);
-  box-shadow: 0 0 10px rgba(215, 255, 63, 0.4);
-}
-
-/* Linear / Raycast Style Top Navigation Bar */
-.linear-shell-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px;
-  height: 42px;
-  background: rgba(15, 17, 21, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  user-select: none;
-}
-
-.linear-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.linear-pulse-dot {
-  width: 7.5px;
-  height: 7.5px;
-  border-radius: 50%;
-  background: var(--lime, #d7ff3f);
-  box-shadow: 0 0 10px rgba(215, 255, 63, 0.7);
-  animation: pulseGlow 2.4s infinite ease-in-out;
-}
-
-.linear-breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 11px;
-}
-
-.breadcrumb-root {
-  color: #fff;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.breadcrumb-separator {
-  color: rgba(255, 255, 255, 0.25);
-}
-
-.breadcrumb-sub {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.breadcrumb-active {
-  color: var(--lime, #d7ff3f);
-  font-weight: 500;
-}
-
-.linear-topbar-center {
-  display: flex;
-  align-items: center;
-}
-
-.linear-tab-group {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 3px 4px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.linear-tab {
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 5px;
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.linear-tab.is-active {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-.linear-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.linear-command-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.cmd-symbol {
-  color: var(--lime, #d7ff3f);
-  font-weight: 600;
-}
-
-.linear-live-indicator {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #0b0c0e;
-  background: var(--lime, #d7ff3f);
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-/* Linear Viewport Screen */
-.linear-shell-viewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  background: #090a0d;
-}
-
-.linear-shell-viewport img {
+.case-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.linear-viewport-sheen {
+.case-cover-sheen {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.04) 0%,
       transparent 45%,
-      rgba(215, 255, 63, 0.02) 100%);
-  z-index: 4;
+      rgba(215, 255, 63, 0.015) 100%);
+  z-index: 2;
 }
 
-.linear-viewport-vignette {
+.circular-card-sheen {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.45);
-  z-index: 3;
-}
-
-/* Mobile Device Mockup Frame (iPhone 16 Pro Titanium Bezel) */
-.device-mockup-mobile {
-  position: relative;
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto;
-  border-radius: 46px;
-  border: 9px solid #222225;
-  background: #08080a;
-  box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.95),
-              inset 0 0 0 2px rgba(255, 255, 255, 0.15),
-              0 0 0 1px rgba(0, 0, 0, 0.8);
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.mobile-bezel-top {
-  position: relative;
-  height: 34px;
-  background: #08080a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.mobile-dynamic-island {
-  width: 90px;
-  height: 22px;
-  background: #000;
-  border-radius: 20px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-              0 2px 5px rgba(0, 0, 0, 0.6);
-  position: relative;
-}
-
-.mobile-camera-lens {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #1e1b4b, #000);
-  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.2);
-}
-
-.mobile-screen-content {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 9 / 18.5;
-  overflow: hidden;
-  background: #09090b;
-}
-
-.mobile-screen-content img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.mobile-bezel-bottom {
-  height: 26px;
-  background: #08080a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.mobile-home-bar {
-  width: 120px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 4px;
-}
-
-/* Subtle Realistic Glare Reflection */
-.device-screen-glare {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(125deg,
-      rgba(255, 255, 255, 0.07) 0%,
-      rgba(255, 255, 255, 0.02) 28%,
-      transparent 50%,
-      rgba(215, 255, 63, 0.025) 100%);
-  z-index: 5;
-}
-
-/* Circular Gallery Slide Mockup Screen */
-.circular-card-inner {
-  display: flex;
-  flex-direction: column;
-}
-
-.circular-card-screen {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  overflow: hidden;
-}
-
-.circular-card-screen img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Lightbox Frame Overrides */
-.lightbox-linear-frame {
-  max-width: min(1240px, 92vw);
-  max-height: 88vh;
-  margin: 0 auto;
-}
-
-.lightbox-linear-frame .linear-shell-viewport {
-  aspect-ratio: 16 / 10;
-  max-height: calc(88vh - 46px);
-}
-
-.lightbox-linear-frame .linear-shell-viewport img {
-  object-fit: contain;
-  background: #07080a;
-}
-
-.lightbox-mobile-frame {
-  max-width: min(440px, 88vw);
-  max-height: 88vh;
-  margin: 0 auto;
-}
-
-.lightbox-mobile-frame .mobile-screen-content {
-  max-height: calc(88vh - 60px);
-}
-
-.lightbox-mobile-frame .mobile-screen-content img {
-  object-fit: contain;
-  background: #000;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      transparent 45%,
+      rgba(215, 255, 63, 0.015) 100%);
+  z-index: 2;
 }
 
 .case-cover-label {

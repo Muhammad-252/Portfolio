@@ -174,81 +174,18 @@ export default function CaseStudyPage() {
             </div>
           </div>
 
-          <div className="case-cover-mockup-wrap">
-            {project.platform === "Mobile App" ? (
-              <div className="device-mockup-mobile">
-                <div className="mobile-bezel-top">
-                  <span className="mobile-dynamic-island" />
-                  <span className="mobile-camera-lens" />
-                </div>
-                <div className="mobile-screen-content">
-                  <img
-                    src={coverUrl}
-                    alt={`${project.title} ${project.platform} design showcase cover`}
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                        target.src = "/images/project-placeholder.svg";
-                      }
-                    }}
-                  />
-                  <div className="device-screen-glare" />
-                </div>
-                <div className="mobile-bezel-bottom">
-                  <span className="mobile-home-bar" />
-                </div>
-              </div>
-            ) : (
-              <div className="device-shell-linear">
-                {/* Futuristic neon laser accent line */}
-                <div className="linear-laser-line" />
-
-                {/* Linear/Raycast style top bar */}
-                <div className="linear-shell-topbar">
-                  <div className="linear-topbar-left">
-                    <span className="linear-pulse-dot" />
-                    <div className="linear-breadcrumbs">
-                      <span className="breadcrumb-root">{project.slug}</span>
-                      <span className="breadcrumb-separator">/</span>
-                      <span className="breadcrumb-sub">workspace</span>
-                      <span className="breadcrumb-separator">/</span>
-                      <span className="breadcrumb-active">v{project.year || "2.4"}</span>
-                    </div>
-                  </div>
-
-                  <div className="linear-topbar-center">
-                    <div className="linear-tab-group">
-                      <span className="linear-tab is-active">Overview</span>
-                      <span className="linear-tab">Flows</span>
-                      <span className="linear-tab">Systems</span>
-                    </div>
-                  </div>
-
-                  <div className="linear-topbar-right">
-                    <div className="linear-command-pill">
-                      <span className="cmd-symbol">⌘</span>
-                      <span className="cmd-key">K</span>
-                    </div>
-                    <span className="linear-live-indicator">LIVE</span>
-                  </div>
-                </div>
-
-                <div className="linear-shell-viewport">
-                  <img
-                    src={coverUrl}
-                    alt={`${project.title} ${project.platform} design showcase cover`}
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                        target.src = "/images/project-placeholder.svg";
-                      }
-                    }}
-                  />
-                  <div className="linear-viewport-sheen" />
-                  <div className="linear-viewport-vignette" />
-                </div>
-              </div>
-            )}
+          <div className="case-cover">
+            <img
+              src={coverUrl}
+              alt={`${project.title} ${project.platform} design showcase cover`}
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                  target.src = "/images/project-placeholder.svg";
+                }
+              }}
+            />
+            <div className="case-cover-sheen" />
             <div className="case-cover-label">
               <span>{project.industry}</span>
               <strong>{project.year}</strong>

@@ -210,55 +210,35 @@ export default function ProjectGallery({
                   }
                 }}
               >
-                <div className={`circular-card-inner ${platform === "Mobile App" ? "is-mobile-card" : "is-linear-card"}`}>
-                  {platform === "Mobile App" ? (
-                    <div className="card-mockup-header mobile-header">
-                      <span className="card-mobile-notch" />
-                    </div>
-                  ) : (
-                    <div className="card-mockup-header linear-header">
-                      <div className="linear-header-left">
-                        <span className="linear-status-dot" />
-                        <span className="linear-breadcrumb-pill">
-                          {(slug || "app")} <span className="slash">/</span> screen-{String(idx + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                      <div className="linear-header-right">
-                        <span className="linear-cmd-pill">⌘K</span>
+                <div className="circular-card-inner">
+                  <img
+                    src={normalizeImg(imgSrc)}
+                    alt={`${title || "Project"} showcase screen ${idx + 1}`}
+                    loading={isCenter ? "eager" : "lazy"}
+                    decoding="async"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
+                        target.src = "/images/project-placeholder.svg";
+                      }
+                    }}
+                  />
+                  <div className="circular-card-sheen" />
+
+                  {/* Active Card Overlay & Prompt */}
+                  {isCenter && (
+                    <div className="circular-card-active-overlay">
+                      <div className="circular-expand-pill">
+                        <Maximize2 size={13} />
+                        <span>Click to Expand</span>
                       </div>
                     </div>
                   )}
 
-                  <div className="circular-card-screen">
-                    <img
-                      src={normalizeImg(imgSrc)}
-                      alt={`${title || "Project"} showcase screen ${idx + 1}`}
-                      loading={isCenter ? "eager" : "lazy"}
-                      decoding="async"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        if (target.src && !target.src.endsWith("/images/project-placeholder.svg")) {
-                          target.src = "/images/project-placeholder.svg";
-                        }
-                      }}
-                    />
-                    <div className="device-screen-glare" />
-
-                    {/* Active Card Overlay & Prompt */}
-                    {isCenter && (
-                      <div className="circular-card-active-overlay">
-                        <div className="circular-expand-pill">
-                          <Maximize2 size={13} />
-                          <span>Click to Expand</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Side Card subtle click prompt */}
-                    {!isCenter && (
-                      <div className="circular-card-flank-tint" />
-                    )}
-                  </div>
+                  {/* Side Card subtle click prompt */}
+                  {!isCenter && (
+                    <div className="circular-card-flank-tint" />
+                  )}
                 </div>
               </div>
             );
@@ -378,63 +358,11 @@ export default function ProjectGallery({
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
             >
-              {platform === "Mobile App" ? (
-                <div className="device-mockup-mobile lightbox-mobile-frame">
-                  <div className="mobile-bezel-top">
-                    <span className="mobile-dynamic-island" />
-                    <span className="mobile-camera-lens" />
-                  </div>
-                  <div className="mobile-screen-content">
-                    <img
-                      src={normalizeImg(images[lightboxIndex])}
-                      alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
-                      className="lightbox-main-img"
-                    />
-                    <div className="device-screen-glare" />
-                  </div>
-                  <div className="mobile-bezel-bottom">
-                    <span className="mobile-home-bar" />
-                  </div>
-                </div>
-              ) : (
-                <div className="device-shell-linear lightbox-linear-frame">
-                  <div className="linear-laser-line" />
-                  <div className="linear-shell-topbar">
-                    <div className="linear-topbar-left">
-                      <span className="linear-pulse-dot" />
-                      <div className="linear-breadcrumbs">
-                        <span className="breadcrumb-root">{slug || "project"}</span>
-                        <span className="breadcrumb-separator">/</span>
-                        <span className="breadcrumb-sub">screens</span>
-                        <span className="breadcrumb-separator">/</span>
-                        <span className="breadcrumb-active">
-                          {String(lightboxIndex + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="linear-topbar-center">
-                      <div className="linear-command-pill">
-                        <span className="cmd-symbol">⌘</span>
-                        <span className="cmd-key">K Command Palette</span>
-                      </div>
-                    </div>
-
-                    <div className="linear-topbar-right">
-                      <span className="linear-live-indicator">FULL VIEW</span>
-                    </div>
-                  </div>
-
-                  <div className="linear-shell-viewport">
-                    <img
-                      src={normalizeImg(images[lightboxIndex])}
-                      alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
-                      className="lightbox-main-img"
-                    />
-                    <div className="linear-viewport-sheen" />
-                  </div>
-                </div>
-              )}
+              <img
+                src={normalizeImg(images[lightboxIndex])}
+                alt={`${title || "Project"} screen ${lightboxIndex + 1}`}
+                className="lightbox-main-img"
+              />
             </motion.div>
 
             {/* Modal Next Arrow */}
