@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul style={{ color: "var(--muted)", lineHeight: 1.8, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
               <li><strong>Hosting &amp; CDN:</strong> Vercel Global Edge Network for static site compilation and content delivery under strict Transport Layer Security (TLS 1.3 / HTTPS).</li>
-              <li><strong>Cloud Database &amp; Storage:</strong> Google Cloud Firebase for authorized content administration, protected by strict server-side Firestore security rules.</li>
+              <li><strong>Cloud Database &amp; Storage:</strong> Supabase (PostgreSQL) for authorized content administration, protected by strict server-side Row-Level Security (RLS) policies.</li>
               <li><strong>Media Hosting:</strong> Unsplash for high-resolution project reference photography.</li>
               <li><strong>Website Analytics:</strong> Google Analytics (GA4) via Google Tag Manager for aggregated, privacy-preserving visitor and page engagement metrics.</li>
             </ul>

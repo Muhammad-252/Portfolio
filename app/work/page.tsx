@@ -55,7 +55,7 @@ export default function WorkPage() {
     return [
       {
         value: "All",
-        label: `All Industries (${sorted.length})`,
+        label: "All Industries",
         count: projects.length,
       },
       ...sorted.map((ind) => ({

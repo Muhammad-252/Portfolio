@@ -1,22 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  User,
-} from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import type { User } from "@supabase/supabase-js";
 import {
   Plus,
   Trash2,
@@ -44,8 +29,11 @@ import {
   Calendar,
   Tag,
   MessageCircle,
+  Upload,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
-import { auth, db, firebaseConfigured } from "@/lib/firebase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import type { Project } from "@/lib/types";
 import {
   DEFAULT_MAIN_CATEGORIES,
@@ -164,29 +152,164 @@ export default function Admin() {
   const [editingFaqAnswer, setEditingFaqAnswer] = useState("");
   const [editingFaqCategory, setEditingFaqCategory] = useState("Process");
 
+  // Direct Supabase Media Upload States
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadCoverError, setUploadCoverError] = useState("");
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [galleryUploadProgress, setGalleryUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [uploadGalleryError, setUploadGalleryError] = useState("");
+  const [uploadingBlogCover, setUploadingBlogCover] = useState(false);
+  const [uploadBlogCoverError, setUploadBlogCoverError] = useState("");
+
+  async function uploadImageToSupabase(file: File, folder: string): Promise<string> {
+    if (!supabaseConfigured) {
+      throw new Error("Supabase credentials not configured.");
+    }
+    const cleanName = file.name
+      .toLowerCase()
+      .replace(/[^\w.-]/g, "-")
+      .replace(/-+/g, "-");
+    const uniqueKey = `${folder}/${Date.now()}-${cleanName}`;
+
+    const { data, error } = await supabase.storage
+      .from("portfolio")
+      .upload(uniqueKey, file, {
+        cacheControl: "31536000",
+        upsert: true,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: publicData } = supabase.storage
+      .from("portfolio")
+      .getPublicUrl(data.path);
+
+    return publicData.publicUrl;
+  }
+
+  async function handleCoverFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadCoverError("Please select a valid image file (JPEG, PNG, WebP, AVIF).");
+      return;
+    }
+
+    try {
+      setUploadingCover(true);
+      setUploadCoverError("");
+      const url = await uploadImageToSupabase(file, "projects/covers");
+      setProj("cover", url);
+    } catch (err: any) {
+      console.error("Cover upload failed:", err);
+      setUploadCoverError(err.message || "Failed to upload cover image.");
+    } finally {
+      setUploadingCover(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleBlogCoverFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadBlogCoverError("Please select a valid image file (JPEG, PNG, WebP, AVIF).");
+      return;
+    }
+
+    try {
+      setUploadingBlogCover(true);
+      setUploadBlogCoverError("");
+      const url = await uploadImageToSupabase(file, "blogs/covers");
+      setBlog("cover", url);
+    } catch (err: any) {
+      console.error("Blog cover upload failed:", err);
+      setUploadBlogCoverError(err.message || "Failed to upload cover image.");
+    } finally {
+      setUploadingBlogCover(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleGalleryFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const validFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (validFiles.length === 0) {
+      setUploadGalleryError("Please select valid image files.");
+      return;
+    }
+
+    try {
+      setUploadingGallery(true);
+      setUploadGalleryError("");
+      setGalleryUploadProgress({ current: 0, total: validFiles.length });
+
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        setGalleryUploadProgress({ current: i + 1, total: validFiles.length });
+        const url = await uploadImageToSupabase(file, "projects/gallery");
+        uploadedUrls.push(url);
+      }
+
+      setProj("gallery", [...(form.gallery || []), ...uploadedUrls]);
+    } catch (err: any) {
+      console.error("Gallery upload failed:", err);
+      setUploadGalleryError(err.message || "Failed to upload gallery images.");
+    } finally {
+      setUploadingGallery(false);
+      setGalleryUploadProgress(null);
+      e.target.value = "";
+    }
+  }
+
+  function removeGalleryImage(indexToRemove: number) {
+    const updated = (form.gallery || []).filter((_, idx) => idx !== indexToRemove);
+    setProj("gallery", updated);
+  }
+
   useEffect(() => {
-    if (!firebaseConfigured || !auth) {
+    if (!supabaseConfigured) {
       setAuthChecked(true);
       return;
     }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+
+    // Check existing active user session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
       setAuthChecked(true);
     });
-    return () => unsub();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthChecked(true);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   async function load() {
-    if (!firebaseConfigured || !db) return;
+    if (!supabaseConfigured) return;
     try {
-      const s = await getDocs(
-        query(collection(db, "projects"), orderBy("order", "asc"))
-      );
-      if (!s.empty) {
-        setProjects(s.docs.map((d) => ({ ...d.data(), id: d.id }) as Project));
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("order", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setProjects(data as Project[]);
       }
     } catch (e: any) {
-      console.warn("Could not load from Firestore, using local data", e);
+      console.warn("Could not load from Supabase, using local data", e);
     }
   }
 
@@ -201,10 +324,15 @@ export default function Admin() {
   );
 
   useEffect(() => {
-    if (isAuthorizedAdmin && firebaseConfigured) {
+    if (isAuthorizedAdmin && supabaseConfigured) {
       load();
     }
   }, [isAuthorizedAdmin]);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null);
+  }
 
   async function login() {
     try {
@@ -213,14 +341,23 @@ export default function Admin() {
         setMsg("Please provide both email and password.");
         return;
       }
-      const res = await signInWithEmailAndPassword(auth, email.trim(), pass);
-      if (!ALLOWED_ADMIN_EMAILS.includes(res.user.email?.toLowerCase() || "")) {
-        await signOut(auth);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: pass,
+      });
+
+      if (error) {
+        setMsg(error.message || "Invalid credentials. Please verify your email and password.");
+        return;
+      }
+
+      if (!ALLOWED_ADMIN_EMAILS.includes(data.user?.email?.toLowerCase() || "")) {
+        await supabase.auth.signOut();
         setUser(null);
         setMsg("Access denied. This account does not possess administrator privileges.");
       }
-    } catch {
-      setMsg("Invalid credentials. Please verify your email and password.");
+    } catch (err: any) {
+      setMsg(err?.message || "Invalid credentials. Please verify your email and password.");
     }
   }
 
@@ -279,11 +416,19 @@ export default function Admin() {
         gallery: (form.gallery || []).filter(Boolean),
       };
 
-      if (firebaseConfigured && db && user) {
+      if (supabaseConfigured && user) {
         if (editing) {
-          await updateDoc(doc(db, "projects", editing), data as any);
+          const { error } = await supabase
+            .from("projects")
+            .update({ ...data, updated_at: new Date().toISOString() })
+            .eq("id", editing);
+          if (error) throw error;
         } else {
-          await addDoc(collection(db, "projects"), data);
+          const newId = data.id || data.slug || "proj-" + Date.now();
+          const { error } = await supabase
+            .from("projects")
+            .insert({ ...data, id: newId });
+          if (error) throw error;
         }
       } else {
         if (editing) {
@@ -309,8 +454,9 @@ export default function Admin() {
   async function removeProject(id: string) {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
-        if (firebaseConfigured && db && user) {
-          await deleteDoc(doc(db, "projects", id));
+        if (supabaseConfigured && user) {
+          const { error } = await supabase.from("projects").delete().eq("id", id);
+          if (error) throw error;
         } else {
           setProjects((prev) => prev.filter((p) => p.id !== id));
         }
@@ -452,7 +598,7 @@ export default function Admin() {
   }
 
   // 2. Cloud authentication required
-  if (!firebaseConfigured || !auth) {
+  if (!supabaseConfigured) {
     return (
       <main className="admin-shell">
         <div className="admin-login-wrapper">
@@ -462,7 +608,7 @@ export default function Admin() {
             </div>
             <h1>Admin Access Restricted</h1>
             <p style={{ marginTop: 12, color: "#aaa" }}>
-              Administrative management requires authenticated cloud credentials. Please configure valid Firebase environment variables to access this console.
+              Administrative management requires authenticated cloud credentials. Please configure valid Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY) to access this console.
             </p>
             <div style={{ marginTop: 24 }}>
               <a href="/" className="back-site-link">
@@ -545,10 +691,7 @@ export default function Admin() {
             <div style={{ marginTop: 24 }}>
               <button
                 className="pill primary"
-                onClick={async () => {
-                  if (auth) await signOut(auth);
-                  setUser(null);
-                }}
+                onClick={handleLogout}
               >
                 Sign Out
               </button>
@@ -581,7 +724,7 @@ export default function Admin() {
           <div className="system-status-indicator">
             <span className="system-status-pulse" />
             <span className="system-status-text">
-              {firebaseConfigured ? "Firestore Cloud" : "Local Storage Mode"}
+              {supabaseConfigured ? "Supabase Cloud" : "Local Storage Mode"}
             </span>
           </div>
           <a
@@ -608,7 +751,7 @@ export default function Admin() {
             <button
               type="button"
               className="topbar-logout-btn"
-              onClick={() => signOut(auth)}
+              onClick={handleLogout}
               title="Sign out"
             >
               <LogOut size={14} />
@@ -762,8 +905,8 @@ export default function Admin() {
               <span>Database Sync</span>
             </div>
             <p className="db-status-detail">
-              {firebaseConfigured
-                ? "Firestore cloud database connected"
+              {supabaseConfigured
+                ? "Supabase cloud database connected"
                 : "Local storage persistence operational"}
             </p>
             <span className="db-doc-count">
@@ -1251,23 +1394,80 @@ export default function Admin() {
                   />
                 </div>
 
-                {/* Cover Image URL */}
+                {/* Cover Image Upload (Direct to Supabase Storage) */}
                 <div className="field form-full">
-                  <label>Project Cover Image URL *</label>
-                  <input
-                    className="input"
-                    placeholder="https://images.unsplash.com/... or /images/..."
-                    value={form.cover}
-                    onChange={(e) => setProj("cover", e.target.value)}
-                  />
-                  {form.cover && (
-                    <div className="editor-cover-preview">
-                      <img
-                        src={form.cover}
-                        alt="Cover preview"
-                        onError={(e) => ((e.target as HTMLElement).style.display = "none")}
-                      />
-                      <span>Cover Preview</span>
+                  <label>Project Cover Image *</label>
+                  {form.cover ? (
+                    <div className="admin-media-card">
+                      <div className="admin-media-thumb">
+                        <img
+                          src={form.cover}
+                          alt="Cover preview"
+                          onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                        />
+                      </div>
+                      <div className="admin-media-details">
+                        <span className="admin-media-title">Cover Image Set</span>
+                        <span className="admin-media-url" title={form.cover}>
+                          {form.cover}
+                        </span>
+                        <div className="admin-media-actions">
+                          <label className="admin-btn-secondary admin-btn-sm" style={{ cursor: "pointer" }}>
+                            <Upload size={13} />
+                            <span>Replace Cover</span>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/avif"
+                              style={{ display: "none" }}
+                              onChange={handleCoverFileChange}
+                              disabled={uploadingCover}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="admin-btn-danger admin-btn-sm"
+                            onClick={() => setProj("cover", "")}
+                            disabled={uploadingCover}
+                          >
+                            <Trash2 size={13} />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="admin-dropzone-wrap">
+                      <label className={`admin-dropzone ${uploadingCover ? "uploading" : ""}`}>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/avif"
+                          style={{ display: "none" }}
+                          onChange={handleCoverFileChange}
+                          disabled={uploadingCover}
+                        />
+                        {uploadingCover ? (
+                          <div className="dropzone-status">
+                            <Loader2 size={24} className="spin-icon" />
+                            <span className="dropzone-primary-text">Uploading cover to Supabase Storage…</span>
+                            <span className="dropzone-hint">Optimizing file &amp; generating CDN link</span>
+                          </div>
+                        ) : (
+                          <div className="dropzone-status">
+                            <div className="dropzone-icon-circle">
+                              <Upload size={20} />
+                            </div>
+                            <span className="dropzone-primary-text">
+                              Click to upload cover image or drag &amp; drop
+                            </span>
+                            <span className="dropzone-hint">
+                              Supports PNG, JPG, WebP, or AVIF (Up to 10MB)
+                            </span>
+                          </div>
+                        )}
+                      </label>
+                      {uploadCoverError && (
+                        <span className="admin-field-error">{uploadCoverError}</span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1366,21 +1566,98 @@ export default function Admin() {
                   />
                 </div>
 
-                {/* Gallery Images */}
+                {/* Gallery Images Multi-Uploader (Direct to Supabase Storage) */}
                 <div className="field form-full">
-                  <label>Gallery Images (One URL per line)</label>
-                  <textarea
-                    className="textarea"
-                    rows={4}
-                    placeholder="https://example.com/screen1.jpg&#10;https://example.com/screen2.jpg"
-                    value={(form.gallery || []).join("\n")}
-                    onChange={(e) =>
-                      setProj(
-                        "gallery",
-                        e.target.value.split("\n").map((url) => url.trim())
-                      )
-                    }
-                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <label style={{ margin: 0 }}>Project Gallery Images</label>
+                    {(form.gallery || []).length > 0 && (
+                      <span className="admin-counter-pill">
+                        {(form.gallery || []).length} image{(form.gallery || []).length !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="admin-dropzone-wrap">
+                    <label className={`admin-dropzone multi ${uploadingGallery ? "uploading" : ""}`}>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/png,image/jpeg,image/webp,image/avif"
+                        style={{ display: "none" }}
+                        onChange={handleGalleryFilesChange}
+                        disabled={uploadingGallery}
+                      />
+                      {uploadingGallery ? (
+                        <div className="dropzone-status">
+                          <Loader2 size={24} className="spin-icon" />
+                          <span className="dropzone-primary-text">
+                            Uploading {galleryUploadProgress?.current} of {galleryUploadProgress?.total} images to Supabase…
+                          </span>
+                          <span className="dropzone-hint">Saving directly into Supabase Storage</span>
+                        </div>
+                      ) : (
+                        <div className="dropzone-status">
+                          <div className="dropzone-icon-circle">
+                            <ImageIcon size={20} />
+                          </div>
+                          <span className="dropzone-primary-text">
+                            Upload gallery screenshots &amp; mockups
+                          </span>
+                          <span className="dropzone-hint">
+                            Select or drag &amp; drop multiple images at once (PNG, JPG, WebP)
+                          </span>
+                        </div>
+                      )}
+                    </label>
+                    {uploadGalleryError && (
+                      <span className="admin-field-error">{uploadGalleryError}</span>
+                    )}
+                  </div>
+
+                  {/* Gallery Thumbnails Grid */}
+                  {(form.gallery || []).length > 0 && (
+                    <div className="gallery-preview-section">
+                      <div className="gallery-preview-grid">
+                        {(form.gallery || []).map((imgUrl, idx) => (
+                          <div key={idx} className="gallery-thumb-card">
+                            <img src={imgUrl} alt={`Gallery item ${idx + 1}`} />
+                            <div className="gallery-thumb-overlay">
+                              <button
+                                type="button"
+                                className="gallery-thumb-delete-btn"
+                                title="Remove this image"
+                                onClick={() => removeGalleryImage(idx)}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                            <span className="gallery-thumb-index">#{idx + 1}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="gallery-preview-footer">
+                        <label className="admin-btn-secondary admin-btn-sm" style={{ cursor: "pointer" }}>
+                          <Upload size={13} />
+                          <span>Add More Images</span>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/png,image/jpeg,image/webp,image/avif"
+                            style={{ display: "none" }}
+                            onChange={handleGalleryFilesChange}
+                            disabled={uploadingGallery}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          className="admin-btn-ghost admin-btn-sm"
+                          onClick={() => setProj("gallery", [])}
+                        >
+                          Clear All Gallery Images
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sorting & Flags */}
@@ -1658,24 +1935,80 @@ export default function Admin() {
                   />
                 </div>
 
-                {/* Cover Image */}
+                {/* Blog Cover Image Upload (Direct to Supabase Storage) */}
                 <div className="field form-full">
-                  <label>Featured Cover Image URL</label>
-                  <input
-                    className="input"
-                    placeholder="https://images.unsplash.com/..."
-                    value={blogForm.cover}
-                    onChange={(e) => setBlog("cover", e.target.value)}
-                  />
-                  {blogForm.cover && (
-                    <div className="editor-cover-preview">
-                      <img
-                        src={blogForm.cover}
-                        alt="Cover preview"
-                        onError={(e) => ((e.target as HTMLElement).style.display = "none")}
-                      />
-                      <span>Article Cover Preview</span>
+                  <label>Featured Cover Image</label>
+                  {blogForm.cover ? (
+                    <div className="admin-media-card">
+                      <div className="admin-media-thumb">
+                        <img
+                          src={blogForm.cover}
+                          alt="Blog cover preview"
+                          onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                        />
+                      </div>
+                      <div className="admin-media-details">
+                        <span className="admin-media-title">Article Cover Image Set</span>
+                        <span className="admin-media-url" title={blogForm.cover}>
+                          {blogForm.cover}
+                        </span>
+                        <div className="admin-media-actions">
+                          <label className="admin-btn-secondary admin-btn-sm" style={{ cursor: "pointer" }}>
+                            <Upload size={13} />
+                            <span>Replace Cover</span>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/avif"
+                              style={{ display: "none" }}
+                              onChange={handleBlogCoverFileChange}
+                              disabled={uploadingBlogCover}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="admin-btn-danger admin-btn-sm"
+                            onClick={() => setBlog("cover", "")}
+                            disabled={uploadingBlogCover}
+                          >
+                            <Trash2 size={13} />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
+                  ) : (
+                    <div className="admin-dropzone-wrap">
+                      <label className={`admin-dropzone ${uploadingBlogCover ? "uploading" : ""}`}>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/avif"
+                          style={{ display: "none" }}
+                          onChange={handleBlogCoverFileChange}
+                          disabled={uploadingBlogCover}
+                        />
+                        {uploadingBlogCover ? (
+                          <div className="admin-dropzone-inner">
+                            <Loader2 className="admin-spinner" size={28} />
+                            <p className="admin-dropzone-text">Uploading to Supabase Storage...</p>
+                          </div>
+                        ) : (
+                          <div className="admin-dropzone-inner">
+                            <div className="admin-dropzone-icon">
+                              <ImageIcon size={28} />
+                            </div>
+                            <p className="admin-dropzone-text">
+                              <strong>Click or drag &amp; drop to upload article cover</strong>
+                            </p>
+                            <span className="admin-dropzone-hint">
+                              PNG, JPG, WebP, AVIF up to 20MB &bull; Uploads directly to Supabase
+                            </span>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                  )}
+                  {uploadBlogCoverError && (
+                    <p className="admin-upload-error">{uploadBlogCoverError}</p>
                   )}
                 </div>
 

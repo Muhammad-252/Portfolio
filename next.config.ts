@@ -2,12 +2,12 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://*.googleapis.com https://*.firebaseapp.com https://www.googletagmanager.com https://googletagmanager.com https://*.google-analytics.com https://google-analytics.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://*.googleapis.com https://www.googletagmanager.com https://googletagmanager.com https://*.google-analytics.com https://google-analytics.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' data: blob: https:;
   font-src 'self' https://fonts.gstatic.com data:;
-  connect-src 'self' https://*.googleapis.com https://googleapis.com https://*.firebaseio.com https://firebaseio.com https://*.firebase.com https://firebase.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebasestorage.app https://firebasestorage.app https://*.google-analytics.com https://google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.googletagmanager.com https://googletagmanager.com https://stats.g.doubleclick.net https://*.doubleclick.net https://www.google.com https://*.google.com https://google.com;
-  frame-src 'self' https://*.firebaseapp.com;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.googleapis.com https://googleapis.com https://*.google-analytics.com https://google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.googletagmanager.com https://googletagmanager.com https://stats.g.doubleclick.net https://*.doubleclick.net https://www.google.com https://*.google.com https://google.com;
+  frame-src 'none';
   frame-ancestors 'none';
   object-src 'none';
   base-uri 'self';
@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "firebasestorage.googleapis.com" },
+      { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "**.cdn.bubble.io" },
       { protocol: "https", hostname: "**.bubble.io" },
     ],

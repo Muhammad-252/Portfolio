@@ -1,33 +1,17 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db, auth, firebaseConfigured } from "@/lib/firebase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { DEFAULT_INDUSTRIES } from "@/lib/categories";
 
 const LOCAL_STORAGE_KEY = "portfolio_dynamic_industries";
 
 export function useIndustries() {
-  const [industries, setIndustries] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-          }
-        }
-      } catch (e) {
-        console.error("Failed to read industries from localStorage", e);
-      }
-    }
-    return Array.from(DEFAULT_INDUSTRIES);
-  });
+  const [industries, setIndustries] = useState<string[]>(() => Array.from(DEFAULT_INDUSTRIES));
 
   const [loading, setLoading] = useState(true);
 
-  // Sync to Firestore if configured
+  // Sync to Supabase if configured
   const persistIndustries = useCallback(async (updatedList: string[]) => {
     setIndustries(updatedList);
     if (typeof window !== "undefined") {
@@ -38,59 +22,72 @@ export function useIndustries() {
       }
     }
 
-    if (firebaseConfigured && db && auth?.currentUser) {
+    if (supabaseConfigured) {
       try {
-        const docRef = doc(db, "settings", "taxonomies");
-        await setDoc(docRef, { industries: updatedList }, { merge: true });
-      } catch (error) {
-        if ((error as any)?.code !== "permission-denied") {
-          console.error("Error saving industries to Firestore:", error);
+        const { error } = await supabase
+          .from("settings")
+          .upsert({
+            key: "taxonomies",
+            value: { industries: updatedList },
+            updated_at: new Date().toISOString(),
+          });
+        if (error) {
+          console.error("Error saving industries to Supabase:", error);
         }
+      } catch (error) {
+        console.error("Error saving industries to Supabase:", error);
       }
     }
   }, []);
 
-  // Initial load from Firestore
+  // Initial load from localStorage & Supabase
   useEffect(() => {
     let isMounted = true;
 
-    async function loadFromFirestore() {
-      if (!firebaseConfigured || !db) {
+    // Check localStorage safely after client hydration
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0 && isMounted) {
+            setIndustries(parsed);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to read industries from localStorage", e);
+      }
+    }
+
+    async function loadFromSupabase() {
+      if (!supabaseConfigured) {
         setLoading(false);
         return;
       }
 
       try {
-        const docRef = doc(db, "settings", "taxonomies");
-        const snapshot = await getDoc(docRef);
+        const { data, error } = await supabase
+          .from("settings")
+          .select("value")
+          .eq("key", "taxonomies")
+          .maybeSingle();
 
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          if (Array.isArray(data.industries) && data.industries.length > 0) {
-            if (isMounted) {
-              setIndustries(data.industries);
-              if (typeof window !== "undefined") {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.industries));
-              }
+        if (data && data.value && Array.isArray(data.value.industries) && data.value.industries.length > 0) {
+          if (isMounted) {
+            setIndustries(data.value.industries);
+            if (typeof window !== "undefined") {
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.value.industries));
             }
-          } else if (auth?.currentUser) {
-            // Only authenticated admin initializes
-            await setDoc(docRef, { industries: Array.from(DEFAULT_INDUSTRIES) }, { merge: true });
           }
-        } else if (auth?.currentUser) {
-          // Document doesn't exist yet - only admin initializes
-          await setDoc(docRef, { industries: Array.from(DEFAULT_INDUSTRIES) }, { merge: true });
         }
       } catch (err) {
-        if ((err as any)?.code !== "permission-denied") {
-          console.warn("Notice loading industries from Firestore, using default:", err);
-        }
+        console.warn("Notice loading industries from Supabase, using default:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
     }
 
-    loadFromFirestore();
+    loadFromSupabase();
 
     return () => {
       isMounted = false;

@@ -1,17 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore";
-import { db, firebaseConfigured } from "@/lib/firebase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import type { BlogPost } from "./blogTypes";
 
 export const DEFAULT_AUTHOR = {
@@ -154,9 +144,9 @@ export function useBlogPosts() {
     }
   }, []);
 
-  // Sync with Firestore
+  // Sync with Supabase
   useEffect(() => {
-    if (!firebaseConfigured || !db) {
+    if (!supabaseConfigured) {
       setLoading(false);
       return;
     }
@@ -165,21 +155,22 @@ export function useBlogPosts() {
 
     async function fetchPosts() {
       try {
-        const q = query(collection(db, "posts"), orderBy("order", "asc"));
-        const snapshot = await getDocs(q);
+        const { data, error } = await supabase
+          .from("posts")
+          .select("*")
+          .order("order", { ascending: true });
+
         if (!isMounted) return;
 
-        if (!snapshot.empty) {
-          const fetchedPosts: BlogPost[] = [];
-          snapshot.forEach((docSnap) => {
-            fetchedPosts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
-          });
-          setPosts(fetchedPosts);
+        if (error) {
+          console.warn("Supabase posts fetch notice:", error.message);
+        } else if (data && data.length > 0) {
+          setPosts(data as BlogPost[]);
           if (typeof window !== "undefined") {
             try {
               localStorage.setItem(
                 LOCAL_STORAGE_BLOG_KEY,
-                JSON.stringify(fetchedPosts)
+                JSON.stringify(data)
               );
             } catch (e) {
               console.warn("Could not save blog posts to localStorage", e);
@@ -187,9 +178,7 @@ export function useBlogPosts() {
           }
         }
       } catch (error: any) {
-        if (error?.code !== "permission-denied") {
-          console.warn("Firestore posts fetch notice:", error?.message);
-        }
+        console.warn("Supabase posts fetch notice:", error?.message);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -223,13 +212,14 @@ export function useBlogPosts() {
         id: "post-" + Date.now(),
       } as BlogPost;
 
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          const docRef = doc(collection(db, "posts"));
-          newPost.id = docRef.id;
-          await setDoc(docRef, newPost);
+          const { error } = await supabase.from("posts").insert(newPost);
+          if (error) {
+            console.error("Supabase add post failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore add post failed:", e);
+          console.error("Supabase add post failed:", e);
         }
       }
 
@@ -243,11 +233,17 @@ export function useBlogPosts() {
   // Update blog post
   const updateBlogPost = useCallback(
     async (id: string, patch: Partial<BlogPost>): Promise<boolean> => {
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          await setDoc(doc(db, "posts", id), patch, { merge: true });
+          const { error } = await supabase
+            .from("posts")
+            .update(patch)
+            .eq("id", id);
+          if (error) {
+            console.error("Supabase update post failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore update post failed:", e);
+          console.error("Supabase update post failed:", e);
         }
       }
 
@@ -263,11 +259,17 @@ export function useBlogPosts() {
   // Delete blog post
   const deleteBlogPost = useCallback(
     async (id: string): Promise<boolean> => {
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          await deleteDoc(doc(db, "posts", id));
+          const { error } = await supabase
+            .from("posts")
+            .delete()
+            .eq("id", id);
+          if (error) {
+            console.error("Supabase delete post failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore delete post failed:", e);
+          console.error("Supabase delete post failed:", e);
         }
       }
 
@@ -280,14 +282,13 @@ export function useBlogPosts() {
 
   // Reset blog posts to default sample posts
   const resetBlogPosts = useCallback(async () => {
-    if (firebaseConfigured && db) {
+    if (supabaseConfigured) {
       try {
         for (const post of SAMPLE_BLOG_POSTS) {
-          const docId = post.id || post.slug;
-          await setDoc(doc(db, "posts", docId), post);
+          await supabase.from("posts").upsert(post);
         }
       } catch (e) {
-        console.error("Firestore reset posts failed:", e);
+        console.error("Supabase reset posts failed:", e);
       }
     }
 

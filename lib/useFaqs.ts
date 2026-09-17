@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  query,
-  orderBy,
-} from "firebase/firestore";
-import { db, firebaseConfigured } from "@/lib/firebase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import type { FAQItem } from "./faqTypes";
 
 export const SAMPLE_FAQS: FAQItem[] = [
@@ -147,9 +138,9 @@ export function useFaqs() {
     }
   }, []);
 
-  // Sync with Firestore if configured
+  // Sync with Supabase if configured
   useEffect(() => {
-    if (!firebaseConfigured || !db) {
+    if (!supabaseConfigured) {
       setLoading(false);
       return;
     }
@@ -158,24 +149,23 @@ export function useFaqs() {
 
     async function fetchFaqs() {
       try {
-        const q = query(collection(db, "faqs"), orderBy("order", "asc"));
-        const snapshot = await getDocs(q);
+        const { data, error } = await supabase
+          .from("faqs")
+          .select("*")
+          .order("order", { ascending: true });
+
         if (!isMounted) return;
 
-        if (!snapshot.empty) {
-          const fetched = snapshot.docs.map((d) => ({
-            ...d.data(),
-            id: d.id,
-          })) as FAQItem[];
-          setFaqs(fetched);
+        if (error) {
+          console.warn("Supabase faqs fetch notice:", error.message);
+        } else if (data && data.length > 0) {
+          setFaqs(data as FAQItem[]);
           if (typeof window !== "undefined") {
-            localStorage.setItem(LOCAL_STORAGE_FAQS_KEY, JSON.stringify(fetched));
+            localStorage.setItem(LOCAL_STORAGE_FAQS_KEY, JSON.stringify(data));
           }
         }
       } catch (err: any) {
-        if ((err as any)?.code !== "permission-denied") {
-          console.warn("Firestore faqs fetch notice, using local data", err);
-        }
+        console.warn("Supabase faqs fetch notice, using local data", err);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -205,13 +195,14 @@ export function useFaqs() {
         id: "faq-" + Date.now(),
       };
 
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          const docRef = doc(collection(db, "faqs"));
-          newFaq.id = docRef.id;
-          await setDoc(docRef, newFaq);
+          const { error } = await supabase.from("faqs").insert(newFaq);
+          if (error) {
+            console.error("Supabase add FAQ failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore add FAQ failed:", e);
+          console.error("Supabase add FAQ failed:", e);
         }
       }
 
@@ -225,11 +216,17 @@ export function useFaqs() {
   // Update FAQ
   const updateFaq = useCallback(
     async (id: string, patch: Partial<FAQItem>): Promise<boolean> => {
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          await setDoc(doc(db, "faqs", id), patch, { merge: true });
+          const { error } = await supabase
+            .from("faqs")
+            .update(patch)
+            .eq("id", id);
+          if (error) {
+            console.error("Supabase update FAQ failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore update FAQ failed:", e);
+          console.error("Supabase update FAQ failed:", e);
         }
       }
 
@@ -243,11 +240,17 @@ export function useFaqs() {
   // Delete FAQ
   const deleteFaq = useCallback(
     async (id: string): Promise<boolean> => {
-      if (firebaseConfigured && db) {
+      if (supabaseConfigured) {
         try {
-          await deleteDoc(doc(db, "faqs", id));
+          const { error } = await supabase
+            .from("faqs")
+            .delete()
+            .eq("id", id);
+          if (error) {
+            console.error("Supabase delete FAQ failed:", error);
+          }
         } catch (e) {
-          console.error("Firestore delete FAQ failed:", e);
+          console.error("Supabase delete FAQ failed:", e);
         }
       }
 
@@ -260,6 +263,16 @@ export function useFaqs() {
 
   // Reset to default sample FAQs
   const resetFaqs = useCallback(async () => {
+    if (supabaseConfigured) {
+      try {
+        for (const faq of SAMPLE_FAQS) {
+          await supabase.from("faqs").upsert(faq);
+        }
+      } catch (e) {
+        console.error("Supabase reset faqs failed:", e);
+      }
+    }
+
     await persistFaqs(SAMPLE_FAQS);
   }, [persistFaqs]);
 

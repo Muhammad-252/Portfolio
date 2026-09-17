@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 interface ChainCursorProps {
   mouseSpeed?: number;
@@ -17,13 +18,17 @@ export default function ChainCursor({
   lineColor = "#ffffff",
   lineWidth = 2.5,
 }: ChainCursorProps) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const badgesRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    // Disable on touch / mobile devices or if user prefers reduced motion
+    // Disable on admin dashboard, touch / mobile devices, or if user prefers reduced motion
     if (
+      isAdmin ||
       typeof window === "undefined" ||
       window.matchMedia("(pointer: coarse)").matches ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -123,7 +128,11 @@ export default function ChainCursor({
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
     };
-  }, [mouseSpeed, chainSpeed, gapSteps]);
+  }, [isAdmin, mouseSpeed, chainSpeed, gapSteps]);
+
+  if (isAdmin) {
+    return null;
+  }
 
   return (
     <div

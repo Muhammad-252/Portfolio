@@ -51,17 +51,7 @@ console.log(
 const code = `"use client";
 
 import { useEffect, useState, useCallback } from "react";
-import {
-  collection,
-  doc,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore";
-import { db, firebaseConfigured } from "@/lib/firebase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import type { BlogPost } from "./blogTypes";
 
 export const DEFAULT_AUTHOR = {
@@ -118,91 +108,37 @@ export function useBlogPosts() {
     }
   }, []);
 
-  // Sync with Firestore
+  // Sync with Supabase
   useEffect(() => {
-    if (!firebaseConfigured || !db) {
+    if (!supabaseConfigured) {
       setLoading(false);
       return;
     }
 
-    try {
-      const q = query(collection(db, "posts"), orderBy("order", "asc"));
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          if (!snapshot.empty) {
-            const fetchedPosts: BlogPost[] = [];
-            snapshot.forEach((docSnap) => {
-              fetchedPosts.push({ id: docSnap.id, ...docSnap.data() } as BlogPost);
-            });
-            setPosts(fetchedPosts);
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem(
-                  LOCAL_STORAGE_BLOG_KEY,
-                  JSON.stringify(fetchedPosts)
-                );
-              } catch (e) {
-                console.warn("Could not save blog posts to localStorage", e);
-              }
-            }
-          }
-          setLoading(false);
-        },
-        (error) => {
-          if (error.code !== "permission-denied") {
-            console.warn("Firestore posts listener error:", error.message);
-          }
-          setLoading(false);
+    supabase
+      .from("posts")
+      .select("*")
+      .order("order", { ascending: true })
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setPosts(data as BlogPost[]);
         }
-      );
-
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn("Error setting up Firestore posts listener", e);
-      setLoading(false);
-    }
+        setLoading(false);
+      });
   }, []);
 
-  // Helper to save or update a post in Firestore
+  // Helper to save or update a post in Supabase
   const savePost = useCallback(async (post: BlogPost) => {
-    if (!firebaseConfigured || !db) {
-      setPosts((prev) => {
-        const idx = prev.findIndex((p) => p.slug === post.slug);
-        let updated: BlogPost[];
-        if (idx >= 0) {
-          updated = [...prev];
-          updated[idx] = post;
-        } else {
-          updated = [post, ...prev];
-        }
-        if (typeof window !== "undefined") {
-          localStorage.setItem(LOCAL_STORAGE_BLOG_KEY, JSON.stringify(updated));
-        }
-        return updated;
-      });
-      return;
+    if (supabaseConfigured) {
+      await supabase.from("posts").upsert(post);
     }
-
-    const docId = post.id || post.slug;
-    const postRef = doc(db, "posts", docId);
-    await setDoc(postRef, { ...post, id: docId });
   }, []);
 
   // Helper to delete a post
   const deletePost = useCallback(async (id: string) => {
-    if (!firebaseConfigured || !db) {
-      setPosts((prev) => {
-        const updated = prev.filter((p) => p.id !== id && p.slug !== id);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(LOCAL_STORAGE_BLOG_KEY, JSON.stringify(updated));
-        }
-        return updated;
-      });
-      return;
+    if (supabaseConfigured) {
+      await supabase.from("posts").delete().eq("id", id);
     }
-
-    await deleteDoc(doc(db, "posts", id));
   }, []);
 
   return { posts, loading, savePost, deletePost };
