@@ -178,10 +178,19 @@ export default function CaseStudyPage() {
 
           <div className="case-cover-mockup-wrapper">
             {project.platform === "Mobile App" ? (
-              <IPhoneMockup
-                src={coverUrl}
-                alt={`${project.title} ${project.platform} design showcase cover`}
-              />
+              coverUrl.includes("three-phones") || coverUrl.includes("3phones") ? (
+                <img
+                  src={coverUrl}
+                  alt={`${project.title} ${project.platform} design showcase cover`}
+                  className="mobile-showcase-cover"
+                  style={{ width: "100%", height: "auto", maxHeight: "680px", objectFit: "contain", borderRadius: "18px", display: "block" }}
+                />
+              ) : (
+                <IPhoneMockup
+                  src={coverUrl}
+                  alt={`${project.title} ${project.platform} design showcase cover`}
+                />
+              )
             ) : (
               <MacBookMockup
                 src={coverUrl}

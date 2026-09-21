@@ -53,11 +53,20 @@ export default function ProjectCard({ p }: { p: Project }) {
         </Link>
         <div className="project-image project-image-stage">
           {p.platform === "Mobile App" ? (
-            <IPhoneMockup
-              src={coverSrc}
-              alt={altText}
-              className="card-mockup-fit"
-            />
+            coverSrc.includes("three-phones") || coverSrc.includes("3phones") ? (
+              <img
+                src={coverSrc}
+                alt={altText}
+                className="card-mockup-fit mobile-showcase-cover"
+                style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+              />
+            ) : (
+              <IPhoneMockup
+                src={coverSrc}
+                alt={altText}
+                className="card-mockup-fit"
+              />
+            )
           ) : (
             <MacBookMockup
               src={coverSrc}
