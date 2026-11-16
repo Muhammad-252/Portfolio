@@ -18,39 +18,64 @@ function normalizePlatform(platform?: string): string {
 }
 
 function tidyProject(data: Partial<Project>, id: string): Project {
+  const sample = SAMPLE_PROJECTS.find(
+    (p) => p.id === id || (data.slug && p.slug === data.slug)
+  );
+
+  const cover =
+    data.cover && data.cover.trim() !== ""
+      ? data.cover
+      : sample?.cover || "";
+
+  const gallery =
+    Array.isArray(data.gallery) && data.gallery.length > 0
+      ? data.gallery
+      : sample?.gallery || [];
+
+  const figma =
+    data.figma && data.figma.trim() !== ""
+      ? data.figma
+      : sample?.figma || "";
+
+  const live =
+    data.live && data.live.trim() !== ""
+      ? data.live
+      : sample?.live || "";
+
   return {
+    ...sample,
     ...data,
     id,
-    title: data.title || "Untitled project",
-    slug: data.slug || id,
-    category: normalizeCategory(data.category),
-    industry: data.industry || "Real Estate",
-    platform: normalizePlatform(data.platform),
-    year: data.year || "2026",
-    description: data.description || "",
-    cover: data.cover || "",
-    gallery: Array.isArray(data.gallery) ? data.gallery : [],
-    role: data.role || "",
-    client: data.client || "",
-    duration: data.duration || "",
-    tools: Array.isArray(data.tools) ? data.tools : [],
-    challenge: data.challenge || "",
-    process: data.process || "",
-    solution: data.solution || "",
-    outcome: data.outcome || "",
-    figma: data.figma || "",
-    live: data.live || "",
-    featured: Boolean(data.featured),
+    title: data.title || sample?.title || "Untitled project",
+    slug: data.slug || sample?.slug || id,
+    category: normalizeCategory(data.category || sample?.category),
+    industry: data.industry || sample?.industry || "Real Estate",
+    platform: normalizePlatform(data.platform || sample?.platform),
+    year: data.year || sample?.year || "2026",
+    description: data.description || sample?.description || "",
+    cover,
+    gallery,
+    role: data.role || sample?.role || "",
+    client: data.client || sample?.client || "",
+    duration: data.duration || sample?.duration || "",
+    tools: Array.isArray(data.tools) && data.tools.length > 0 ? data.tools : sample?.tools || [],
+    challenge: data.challenge || sample?.challenge || "",
+    process: data.process || sample?.process || "",
+    solution: data.solution || sample?.solution || "",
+    outcome: data.outcome || sample?.outcome || "",
+    figma,
+    live,
+    featured: typeof data.featured === "boolean" ? data.featured : Boolean(sample?.featured),
     published: data.published !== false,
-    order: Number(data.order || 0),
-    overview: data.overview || "",
-    userExperience: data.userExperience || "",
-    keyFeatures: Array.isArray(data.keyFeatures) ? data.keyFeatures : [],
-    designSystem: data.designSystem || "",
-    prototypeInteractions: data.prototypeInteractions || "",
-    seoTitle: data.seoTitle || `${data.title} | UI/UX Design & Development`,
-    seoDescription: data.seoDescription || data.description || "",
-    socialImage: data.socialImage || data.cover || "",
+    order: Number(data.order !== undefined && data.order !== null ? data.order : sample?.order || 0),
+    overview: data.overview || sample?.overview || "",
+    userExperience: data.userExperience || sample?.userExperience || "",
+    keyFeatures: Array.isArray(data.keyFeatures) && data.keyFeatures.length > 0 ? data.keyFeatures : sample?.keyFeatures || [],
+    designSystem: data.designSystem || sample?.designSystem || "",
+    prototypeInteractions: data.prototypeInteractions || sample?.prototypeInteractions || "",
+    seoTitle: data.seoTitle || sample?.seoTitle || `${data.title || sample?.title} | UI/UX Design & Development`,
+    seoDescription: data.seoDescription || sample?.seoDescription || data.description || sample?.description || "",
+    socialImage: data.socialImage || sample?.socialImage || cover || "",
   };
 }
 
